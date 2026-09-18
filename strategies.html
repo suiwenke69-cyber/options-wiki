@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>组合策略 — 期权百科</title>
+<meta name="description" content="备兑、保护性看跌、价差、跨式、铁鹰等常见期权策略,附可自由增删期权的策略构建器与实时盈亏图。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">第 06 章 · 把积木拼起来</p>
+        <h1>组合策略:自己设计盈亏形状</h1>
+        <p class="lede">
+          单张期权只能给你四种形状(第 03 章的四大头寸)。但把几张不同行权价、不同方向的期权叠在一起,
+          你就能<strong>定制</strong>出想要的盈亏结构——这才是期权真正好玩的地方。
+        </p>
+      </div>
+
+      <h2><span class="hnum">1</span>策略的本质:订购一条曲线</h2>
+
+      <p>
+        理解组合策略有一个最省力的角度:<strong>你不是在"买卖期权",你是在向市场订购一条盈亏曲线</strong>。
+      </p>
+
+      <div class="grid grid--3">
+        <div class="card card--flat">
+          <h3 class="card__title">想要"亏有限、赚很多"</h3>
+          <p class="small muted" style="margin:0">买入看涨期权 —— 像买彩票,成本固定</p>
+        </div>
+        <div class="card card--flat">
+          <h3 class="card__title">想要"只要不大涨就赚"</h3>
+          <p class="small muted" style="margin:0">价差、铁鹰 —— 用一组腿把上方收益切掉,换取概率</p>
+        </div>
+        <div class="card card--flat">
+          <h3 class="card__title">想要"不管涨跌都赚,只要动得够狠"</h3>
+          <p class="small muted" style="margin:0">买入跨式 —— 赌波动率,不赌方向</p>
+        </div>
+      </div>
+
+      <p class="mt">
+        所以学习策略时,不要背名字。要问三个问题:
+      </p>
+
+      <ol>
+        <li><strong>我希望在什么行情下赚钱?</strong>(大涨 / 小涨 / 横盘 / 大跌 / 剧烈波动)</li>
+        <li><strong>我愿意承担多大的最大亏损?</strong></li>
+        <li><strong>我付出了净权利金,还是收到了净权利金?</strong></li>
+      </ol>
+
+      <div class="callout callout--key">
+        <span class="callout__t">两个术语先记住</span>
+        <strong>净支出(Debit)</strong>:开仓时你付出的钱比收到的多,整体是"买方"。<br>
+        <strong>净收入(Credit)</strong>:开仓时你收到的钱比付出的多,整体是"卖方",通常需要保证金。<br>
+        所有策略都能落进这两个筐里。
+      </div>
+
+      <h2><span class="hnum">2</span>最常用的八种策略</h2>
+
+      <p>
+        下面这些图会根据你在构建器里选中的策略自动高亮,但更重要的是先看懂它们的<strong>形状</strong>。
+        每张图旁边都标了关键特征。
+      </p>
+
+      <div class="grid grid--2">
+        <div class="card" data-preset-card="coveredCall">
+          <h3 style="margin:0 0 4px;font-size:17px">备兑开仓 <span class="tag tag--short">净收入</span></h3>
+          <p class="small muted" style="margin:0 0 8px"><strong>持股 + 卖出看涨。</strong>用持仓换现金流,牺牲上方大涨空间。</p>
+          <ul class="small muted" style="margin:0;padding-left:1.2em;line-height:1.75">
+            <li>看法:温和看涨或横盘</li>
+            <li>最大盈利:有限(权利金 + 到行权价的涨幅)</li>
+            <li>最大亏损:几乎等于持股的亏损(只被权利金小幅缓冲)</li>
+            <li>典型用途:长期持股想增强收益</li>
+          </ul>
+        </div>
+
+        <div class="card" data-preset-card="protectivePut">
+          <h3 style="margin:0 0 4px;font-size:17px">保护性看跌 <span class="tag tag--long">净支出</span></h3>
+          <p class="small muted" style="margin:0 0 8px"><strong>持股 + 买入看跌。</strong>给持仓买保险,下跌有底。</p>
+          <ul class="small muted" style="margin:0;padding-left:1.2em;line-height:1.75">
+            <li>看法:看好但要防黑天鹅</li>
+            <li>最大盈利:无上限(持股收益减保险费)</li>
+            <li>最大亏损:被锁定(行权价以下不再扩大)</li>
+            <li>典型用途:事件前保护、锁定已有浮盈</li>
+          </ul>
+        </div>
+
+        <div class="card" data-preset-card="bullSpread">
+          <h3 style="margin:0 0 4px;font-size:17px">牛市看涨价差 <span class="tag tag--long">净支出</span></h3>
+          <p class="small muted" style="margin:0 0 8px"><strong>买低行权价看涨 + 卖高行权价看涨。</strong>看涨,但把成本和收益都封住。</p>
+          <ul class="small muted" style="margin:0;padding-left:1.2em;line-height:1.75">
+            <li>看法:温和看涨到某个价位</li>
+            <li>最大盈利:行权价之差 − 净支出</li>
+            <li>最大亏损:净支出(封顶)</li>
+            <li>典型用途:比裸买看涨更便宜,但放弃了暴涨收益</li>
+          </ul>
+        </div>
+
+        <div class="card" data-preset-card="bearSpread">
+          <h3 style="margin:0 0 4px;font-size:17px">熊市看跌价差 <span class="tag tag--long">净支出</span></h3>
+          <p class="small muted" style="margin:0 0 8px"><strong>买高行权价看跌 + 卖低行权价看跌。</strong>看跌版本的双腿结构。</p>
+          <ul class="small muted" style="margin:0;padding-left:1.2em;line-height:1.75">
+            <li>看法:温和看跌到某个价位</li>
+            <li>最大盈利:行权价之差 − 净支出</li>
+            <li>最大亏损:净支出(封顶)</li>
+            <li>典型用途:看跌但不想承担裸买看跌的全部成本</li>
+          </ul>
+        </div>
+
+        <div class="card" data-preset-card="straddle">
+          <h3 style="margin:0 0 4px;font-size:17px">买入跨式 <span class="tag tag--long">净支出</span></h3>
+          <p class="small muted" style="margin:0 0 8px"><strong>同行权价买入看涨 + 买入看跌。</strong>不赌方向,赌"动得够狠"。</p>
+          <ul class="small muted" style="margin:0;padding-left:1.2em;line-height:1.75">
+            <li>看法:将有剧烈波动,但不知往哪边</li>
+            <li>最大盈利:理论上无上限(任一方向)</li>
+            <li>最大亏损:两份权利金(发生在标的不动时)</li>
+            <li>典型用途:财报、重大事件前;代价是成本高、Theta 双倍损耗</li>
+          </ul>
+        </div>
+
+        <div class="card" data-preset-card="strangle">
+          <h3 style="margin:0 0 4px;font-size:17px">买入宽跨式 <span class="tag tag--long">净支出</span></h3>
+          <p class="small muted" style="margin:0 0 8px"><strong>买虚值看涨 + 买虚值看跌。</strong>跨式的省钱版,但需要更大的波动。</p>
+          <ul class="small muted" style="margin:0;padding-left:1.2em;line-height:1.75">
+            <li>看法:将有剧烈波动</li>
+            <li>最大盈利:无上限(需大幅单边行情)</li>
+            <li>最大亏损:两份权利金</li>
+            <li>典型用途:成本更低,但两个平衡点都更远</li>
+          </ul>
+        </div>
+
+        <div class="card" data-preset-card="ironCondor">
+          <h3 style="margin:0 0 4px;font-size:17px">铁鹰 <span class="tag tag--short">净收入</span></h3>
+          <p class="small muted" style="margin:0 0 8px"><strong>卖出价差 + 买入更远的保护。</strong>赌"就在这个区间里待着"。</p>
+          <ul class="small muted" style="margin:0;padding-left:1.2em;line-height:1.75">
+            <li>看法:横盘震荡,波动率下降</li>
+            <li>最大盈利:净收入(标的停在中间时全额取得)</li>
+            <li>最大亏损:两侧价差宽度 − 净收入(有封顶)</li>
+            <li>典型用途:赚时间价值 + 赚 IV 回落,风险被限定</li>
+          </ul>
+        </div>
+
+        <div class="card" data-preset-card="butterfly">
+          <h3 style="margin:0 0 4px;font-size:17px">蝶式价差 <span class="tag tag--long">净支出</span></h3>
+          <p class="small muted" style="margin:0 0 8px"><strong>买低 + 卖两张中 + 买高。</strong>精确押注"到期停在某个价位"。</p>
+          <ul class="small muted" style="margin:0;padding-left:1.2em;line-height:1.75">
+            <li>看法:认为会停在中间行权价附近</li>
+            <li>最大盈利:出现在中间行权价</li>
+            <li>最大亏损:净支出(封顶,且很小)</li>
+            <li>典型用途:低成本押注窄幅整理,胜率低但赔率高</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout--warn mt">
+        <span class="callout__t">请务必注意</span>
+        上面对"最大盈利/最大亏损"的描述都建立在<strong>持有到到期</strong>且<strong>标的与波动率按预期变化</strong>的前提上。
+        真实交易中,提前平仓、被提前行权(美式)、IV 变化都会让实际结果偏离图示。
+        <strong>图示是理解结构的工具,不是收益承诺。</strong>
+      </div>
+
+      <h2><span class="hnum">3</span>策略构建器:自己拼一个</h2>
+
+      <p>
+        下面是本站在功能上最完整的一个工具。你可以:先用预设快速加载一个经典策略,
+        再<strong>自由增加或删除任意一条腿</strong>,观察盈亏形状和统计数字怎么变。
+      </p>
+
+      <div class="panel">
+        <div class="panel__head">
+          <h3 class="panel__t">期权策略构建器</h3>
+          <p class="panel__hint">改腿 → 曲线与统计实时更新</p>
+        </div>
+
+        <div class="panel__body">
+          <div class="controls">
+            <div class="field">
+              <label>载入预设策略</label>
+              <div class="seg" id="presetSeg">
+                <button type="button" data-val="longCall" aria-pressed="true">买入看涨</button>
+                <button type="button" data-val="coveredCall" aria-pressed="false">备兑开仓</button>
+                <button type="button" data-val="protectivePut" aria-pressed="false">保护性看跌</button>
+                <button type="button" data-val="bullSpread" aria-pressed="false">牛市价差</button>
+                <button type="button" data-val="bearSpread" aria-pressed="false">熊市价差</button>
+                <button type="button" data-val="straddle" aria-pressed="false">买入跨式</button>
+                <button type="button" data-val="strangle" aria-pressed="false">买入宽跨式</button>
+                <button type="button" data-val="ironCondor" aria-pressed="false">铁鹰</button>
+                <button type="button" data-val="butterfly" aria-pressed="false">蝶式</button>
+              </div>
+            </div>
+
+            <hr class="rule" style="margin:6px 0">
+
+            <div class="field">
+              <label>当前组合 <span class="field__val" id="legCount">—</span></label>
+              <div class="legs" id="legList"></div>
+            </div>
+
+            <hr class="rule" style="margin:6px 0">
+
+            <div class="field">
+              <label>添加一条新腿</label>
+              <div class="seg" id="newKind">
+                <button type="button" data-val="call" aria-pressed="true">看涨</button>
+                <button type="button" data-val="put" aria-pressed="false">看跌</button>
+                <button type="button" data-val="stock" aria-pressed="false">标的</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>方向</label>
+              <div class="seg" id="newDir">
+                <button type="button" data-val="1" aria-pressed="true">买入</button>
+                <button type="button" data-val="-1" aria-pressed="false">卖出</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>行权价 K <span class="field__val" data-for="nK">—</span></label>
+              <input type="range" id="nK" min="60" max="140" step="1" value="100">
+              <p class="field__hint">选"标的"时此项无效</p>
+            </div>
+
+            <div class="field">
+              <label>权利金 <span class="field__val" data-for="nP">—</span></label>
+              <input type="range" id="nP" min="0" max="20" step="0.5" value="5">
+              <p class="field__hint">选"标的"时填建仓成本价</p>
+            </div>
+
+            <div class="field">
+              <label>数量(张) <span class="field__val" data-for="nQ">—</span></label>
+              <input type="range" id="nQ" min="1" max="5" step="1" value="1">
+            </div>
+
+            <button type="button" class="btn" id="addLegBtn" style="width:100%">加入这条腿</button>
+            <button type="button" class="btn btn--ghost" id="clearBtn" style="width:100%">清空组合</button>
+          </div>
+
+          <div>
+            <div class="chartbox">
+              <canvas id="stratChart" height="380" role="img" aria-label="策略组合的到期盈亏图"></canvas>
+            </div>
+
+            <div class="readout mt">
+              <div class="readout__item">
+                <span class="readout__k">净现金流</span>
+                <div class="readout__v" id="sNet" style="font-size:17px">—</div>
+                <span class="readout__note" id="sNetNote">—</span>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">最大盈利</span>
+                <div class="readout__v" id="sMaxP" style="font-size:17px">—</div>
+                <span class="readout__note" id="sMaxPNote">—</span>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">最大亏损</span>
+                <div class="readout__v" id="sMaxL" style="font-size:17px">—</div>
+                <span class="readout__note" id="sMaxLNote">—</span>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">盈亏平衡点</span>
+                <div class="readout__v" id="sBE" style="font-size:17px">—</div>
+                <span class="readout__note">可能有多个</span>
+              </div>
+            </div>
+
+            <div class="legend">
+              <span><i style="background:var(--profit)"></i>盈利</span>
+              <span><i style="background:var(--loss)"></i>亏损</span>
+              <span><i style="background:var(--ink4)"></i>行权价</span>
+              <span><i style="background:var(--ink)"></i>标的现价 100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout--tip mt">
+        <span class="callout__t">建议动手试这几个</span>
+        ① 载入<strong>铁鹰</strong>,然后把中间那两条卖出腿的行权价改近一点(删掉重加),看盈利区变窄、净收入变大。<br>
+        ② 载入<strong>买入跨式</strong>,然后手动加一条"卖出看涨 K=120"和"卖出看跌 K=80",观察形状怎么变成铁鹰。<br>
+        ③ 载入<strong>备兑开仓</strong>,看曲线右上角为什么被压平了——那就是"卖出看涨"封住了上方收益。<br>
+        ④ 载入<strong>蝶式</strong>,看曲线为什么是一个尖顶——这是"卖两张中间行权价"带来的。
+      </div>
+
+      <h2><span class="hnum">4</span>怎么选策略:一个决策顺序</h2>
+
+      <p>
+        面对几十种策略名,新手最容易的迷失方式就是"背策略"。更实用的做法是按顺序回答下面四个问题:
+      </p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th style="width:3.2em">步骤</th><th>问题</th><th>影响</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">1</td>
+              <td>我对<strong>方向</strong>有什么看法?(大涨 / 小涨 / 横盘 / 小跌 / 大跌 / 不知道)</td>
+              <td>决定用看涨腿还是看跌腿,以及行权价相对现价的位置</td>
+            </tr>
+            <tr>
+              <td class="mono">2</td>
+              <td>我对<strong>波动幅度</strong>有什么看法?(会大动 / 会安静)</td>
+              <td>决定净支出(做多波动率)还是净收入(做空波动率)</td>
+            </tr>
+            <tr>
+              <td class="mono">3</td>
+              <td>我的<strong>最大可接受亏损</strong>是多少?</td>
+              <td>决定要不要用价差限定风险,以及是否需要买入保护腿</td>
+            </tr>
+            <tr>
+              <td class="mono">4</td>
+              <td>当前<strong>隐含波动率</strong>处在什么位置?</td>
+              <td>IV 高时倾向卖出、IV 低时倾向买入(仅作方向性判断)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--key">
+        <span class="callout__t">把四个答案拼起来</span>
+        举个例子:<em>"我小涨看法 + 认为会安静 + 最多能亏 500 元 + 现在 IV 偏高"</em><br>
+        → 小涨排除看跌腿;安静 + IV 偏高指向<strong>卖方</strong>;能亏 500 元要求<strong>限定风险</strong>;
+        → 结论自然浮现:<strong>牛市看跌价差</strong>或<strong>铁鹰</strong>,而不是裸卖看跌。<br>
+        你看,你不是在"背策略",你是在<strong>推导策略</strong>。
+      </div>
+
+      <h2><span class="hnum">5</span>组合层面的希腊字母</h2>
+
+      <p>
+        第 05 章讲过希腊字母可以相加。组合策略之所以能精确表达观点,正是因为
+        <strong>每条腿的希腊字母会互相叠加或抵消</strong>。看几个典型例子:
+      </p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>策略</th><th class="num">Delta</th><th class="num">Gamma</th><th class="num">Theta</th><th class="num">Vega</th><th>它在赚什么钱</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>买入看涨</td><td class="num pos">正</td><td class="num pos">正</td><td class="num neg">负</td><td class="num pos">正</td><td>方向 + 波动率上升</td></tr>
+            <tr><td>卖出看涨</td><td class="num neg">负</td><td class="num neg">负</td><td class="num pos">正</td><td class="num neg">负</td><td>时间衰减 + 波动率下降</td></tr>
+            <tr><td>牛市看涨价差</td><td class="num pos">小幅正</td><td class="num">接近中性</td><td class="num">小幅负</td><td class="num">接近中性</td><td>主要是方向</td></tr>
+            <tr><td>买入跨式</td><td class="num">接近中性</td><td class="num pos">正</td><td class="num neg">双倍负</td><td class="num pos">正</td><td>波动率大幅上升</td></tr>
+            <tr><td>铁鹰</td><td class="num">接近中性</td><td class="num neg">负</td><td class="num pos">正</td><td class="num neg">负</td><td>时间衰减 + 波动率下降</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">"Delta 中性"不等于"没有风险"</span>
+        跨式和铁鹰的 Delta 都接近零,但它们的风险<strong>并没有消失,只是换了形式</strong>:
+        跨式承担负 Theta(每天双重损耗),铁鹰承担负 Gamma(标的跑出区间就亏)。
+        <strong>中性化一个希腊字母,必然把风险转移到另一个希腊字母上。</strong>
+        这是期权交易最深刻的道理之一,也是第 07 章要接着讲的内容。
+      </div>
+
+      <h2><span class="hnum">6</span>小结</h2>
+
+      <div class="callout callout--key">
+        <span class="callout__t">读完这章你应该能回答</span>
+        <ul style="margin:8px 0 0;padding-left:1.2em">
+          <li>为什么说"策略是订购一条盈亏曲线",而不是背名字?</li>
+          <li>净支出与净收入的区别,以及为什么净收入策略通常需要保证金。</li>
+          <li>备兑开仓为什么牺牲上方收益?保护性看跌为什么是"买保险"?</li>
+          <li>怎么看懂铁鹰和蝶式的形状,它们分别在赌什么?</li>
+          <li>为什么"Delta 中性"不代表没风险?</li>
+        </ul>
+      </div>
+
+      <p>
+        你已经会设计结构了。但结构设计得再漂亮,如果忽略了<strong>保证金、追保和强平</strong>,
+        一样可能在中途被迫离场——尤其是卖方策略。下一章专门讲这件事。
+      </p>
+
+      <p class="mt2">
+        <a class="btn" href="risk.html" style="display:inline-block">继续读第 07 章 · 风险与保证金 →</a>
+      </p>
+
+      <div class="chaptercta">
+        <div class="chaptercta__txt">
+          <span class="chaptercta__t">▶ 想动手试一遍?</span>
+          去<strong>模拟交易台</strong>,用一支美股标的走完整流程:
+          选到期 → 读期权链 → 下单 → 推动行情 → 平仓,每一步都有对应的知识点讲解,还能看到自己的盈亏是怎么来的。
+        </div>
+        <a class="btn" href="simulator.html">进入模拟交易 →</a>
+      </div>
+
+    </article>
+
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var M = 100;          // 每张合约乘数
+  var SPOT = 100;       // 教学用标的现价
+  var canvas = document.getElementById('stratChart');
+
+  /* ---------------- 预设策略 ---------------- */
+  var PRESETS = {
+    longCall: [
+      { kind: 'call', dir: 1, K: 100, premium: 5, qty: 1 }
+    ],
+    coveredCall: [
+      { kind: 'stock', dir: 1, K: 0, premium: 100, qty: 1 },
+      { kind: 'call', dir: -1, K: 110, premium: 2, qty: 1 }
+    ],
+    protectivePut: [
+      { kind: 'stock', dir: 1, K: 0, premium: 100, qty: 1 },
+      { kind: 'put', dir: 1, K: 95, premium: 3, qty: 1 }
+    ],
+    bullSpread: [
+      { kind: 'call', dir: 1, K: 100, premium: 5, qty: 1 },
+      { kind: 'call', dir: -1, K: 110, premium: 2, qty: 1 }
+    ],
+    bearSpread: [
+      { kind: 'put', dir: 1, K: 100, premium: 5, qty: 1 },
+      { kind: 'put', dir: -1, K: 90, premium: 2, qty: 1 }
+    ],
+    straddle: [
+      { kind: 'call', dir: 1, K: 100, premium: 5, qty: 1 },
+      { kind: 'put', dir: 1, K: 100, premium: 5, qty: 1 }
+    ],
+    strangle: [
+      { kind: 'call', dir: 1, K: 110, premium: 2, qty: 1 },
+      { kind: 'put', dir: 1, K: 90, premium: 2, qty: 1 }
+    ],
+    ironCondor: [
+      { kind: 'put', dir: -1, K: 90, premium: 2.0, qty: 1 },
+      { kind: 'put', dir: 1, K: 80, premium: 0.8, qty: 1 },
+      { kind: 'call', dir: -1, K: 110, premium: 2.0, qty: 1 },
+      { kind: 'call', dir: 1, K: 120, premium: 0.8, qty: 1 }
+    ],
+    butterfly: [
+      { kind: 'call', dir: 1, K: 90, premium: 12, qty: 1 },
+      { kind: 'call', dir: -1, K: 100, premium: 5, qty: 2 },
+      { kind: 'call', dir: 1, K: 110, premium: 1.5, qty: 1 }
+    ]
+  };
+
+  var legs = [];
+  var pending = { kind: 'call', dir: 1 };
+
+  /* ---------------- 工具 ---------------- */
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function legText(leg) {
+    var dirTxt = leg.dir > 0 ? '买入' : '卖出';
+    var kindTxt = leg.kind === 'call' ? '看涨 Call' : leg.kind === 'put' ? '看跌 Put' : '标的';
+    var qty = leg.qty > 1 ? (' ×' + leg.qty) : '';
+    if (leg.kind === 'stock') {
+      return dirTxt + ' ' + qty0(leg.qty) + '标的 @ 成本 ' + leg.premium.toFixed(2);
+    }
+    return dirTxt + ' ' + leg.qty + ' 张 ' + kindTxt + ' K=' + leg.K.toFixed(0) + ' @ ' + leg.premium.toFixed(2);
+  }
+
+  function qty0(q) { return q + ' 单位'; }
+
+  function range() {
+    var vals = [];
+    legs.forEach(function (l) {
+      vals.push(l.kind === 'stock' ? l.premium : l.K);
+    });
+    if (!vals.length) return { lo: 70, hi: 130 };
+    var mn = Math.min.apply(null, vals);
+    var mx = Math.max.apply(null, vals);
+    return {
+      lo: Math.max(1, Math.round(mn * 0.78)),
+      hi: Math.round(mx * 1.22)
+    };
+  }
+
+  /* ---------------- 渲染 ---------------- */
+  function renderLegs() {
+    var box = document.getElementById('legList');
+    document.getElementById('legCount').textContent = legs.length + ' 条腿';
+    if (!legs.length) {
+      box.innerHTML = '<p class="small muted" style="margin:0">组合为空。载入一个预设,或用下面的控件添加。</p>';
+      return;
+    }
+    box.innerHTML = legs.map(function (leg, i) {
+      var cls = leg.dir > 0 ? 'tag--long' : 'tag--short';
+      var dirTxt = leg.dir > 0 ? '买' : '卖';
+      var kindTxt = leg.kind === 'call' ? 'Call' : leg.kind === 'put' ? 'Put' : '标的';
+      var sub = leg.kind === 'stock'
+        ? ('成本 ' + leg.premium.toFixed(2))
+        : ('K=' + leg.K.toFixed(0) + ' · 权利金 ' + leg.premium.toFixed(2));
+      return '<div class="leg">' +
+        '<div class="leg__main">' +
+        '<span class="leg__t"><span class="tag ' + cls + '">' + dirTxt + '</span> ' +
+        leg.qty + ' 张 ' + kindTxt + '</span>' +
+        '<span class="leg__s">' + sub + '</span>' +
+        '</div>' +
+        '<button type="button" class="leg__del" data-del="' + i + '" aria-label="删除这条腿">✕</button>' +
+        '</div>';
+    }).join('');
+
+    box.querySelectorAll('[data-del]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        legs.splice(parseInt(btn.getAttribute('data-del'), 10), 1);
+        renderAll();
+      });
+    });
+  }
+
+  function renderChart() {
+    if (!canvas) return;
+    if (!legs.length) {
+      // 空组合:画一张空图并给出提示
+      Charts.lines(canvas, {
+        height: 380,
+        series: [{ name: '空', color: Charts.PALETTE.ink4, points: [[70, 0], [130, 0]], width: 1, dash: [4, 4] }],
+        xLabel: '到期时标的价', yLabel: '盈亏',
+        xLo: 70, xHi: 130, yLo: -10, yHi: 10,
+        includeZero: true
+      });
+      return;
+    }
+    var r = range();
+    Charts.payoff(canvas, {
+      legs: legs, spot: SPOT, lo: r.lo, hi: r.hi, height: 380
+    });
+  }
+
+  function renderStats() {
+    var net = BS.netPremium(legs) * M;   // 正=净收入
+    var netEl = document.getElementById('sNet');
+    netEl.textContent = (net >= 0 ? '+' : '') + Site.money(net, 0) + ' 元';
+    netEl.style.color = net >= 0 ? 'var(--profit)' : 'var(--loss)';
+    document.getElementById('sNetNote').textContent = net >= 0 ? '净收入(卖出方)' : '净支出(买入方)';
+
+    if (!legs.length) {
+      ['sMaxP', 'sMaxL', 'sBE'].forEach(function (id) {
+        document.getElementById(id).textContent = '—';
+      });
+      document.getElementById('sMaxPNote').textContent = '—';
+      document.getElementById('sMaxLNote').textContent = '—';
+      return;
+    }
+
+    var ex = BS.extremes(legs);
+    var mp = ex.maxProfit * M, ml = ex.maxLoss * M;
+
+    var mpEl = document.getElementById('sMaxP');
+    var mlEl = document.getElementById('sMaxL');
+    if (mp === Infinity) {
+      mpEl.textContent = '无上限';
+      mpEl.style.color = 'var(--profit)';
+      document.getElementById('sMaxPNote').textContent = '标的越高赚越多';
+    } else {
+      mpEl.textContent = Site.signed(mp, 0) + ' 元';
+      mpEl.style.color = mp > 0 ? 'var(--profit)' : mp < 0 ? 'var(--loss)' : 'var(--ink)';
+      document.getElementById('sMaxPNote').textContent = mp <= 0 ? '这个组合没有盈利区间' : '有封顶';
+    }
+    if (ml === -Infinity) {
+      mlEl.textContent = '无下限';
+      mlEl.style.color = 'var(--loss)';
+      document.getElementById('sMaxLNote').textContent = '风险极大';
+    } else {
+      mlEl.textContent = Site.signed(ml, 0) + ' 元';
+      mlEl.style.color = ml < 0 ? 'var(--loss)' : ml > 0 ? 'var(--profit)' : 'var(--ink)';
+      document.getElementById('sMaxLNote').textContent = ml >= 0 ? '这个组合没有亏损区间' : '有封顶';
+    }
+
+    var r = range();
+    var an = BS.analyze(legs, r.lo, r.hi, 800);
+    var be = an.breakevens.map(function (b) { return b.S.toFixed(2); });
+    document.getElementById('sBE').textContent = be.length ? be.join(' / ') : '不存在';
+  }
+
+  function renderAll() {
+    renderLegs();
+    renderChart();
+    renderStats();
+  }
+
+  /* ---------------- 控件绑定 ---------------- */
+  Site.bindSeg('presetSeg', function (v) {
+    if (!PRESETS[v]) return;
+    legs = clone(PRESETS[v]);
+    renderAll();
+  }, 'longCall');
+
+  Site.bindSeg('newKind', function (v) { pending.kind = v; }, 'call');
+  Site.bindSeg('newDir', function (v) { pending.dir = parseInt(v, 10); }, '1');
+
+  var nK = document.getElementById('nK');
+  var nP = document.getElementById('nP');
+  var nQ = document.getElementById('nQ');
+  Site.bindSlider('nK', null, function (v) { return v.toFixed(0); });
+  Site.bindSlider('nP', null, function (v) { return v.toFixed(2); });
+  Site.bindSlider('nQ', null, function (v) { return v.toFixed(0); });
+
+  document.getElementById('addLegBtn').addEventListener('click', function () {
+    var leg = {
+      kind: pending.kind,
+      dir: pending.dir,
+      K: parseFloat(nK.value),
+      premium: parseFloat(nP.value),
+      qty: parseInt(nQ.value, 10)
+    };
+    if (leg.kind === 'stock') leg.K = 0;
+    legs.push(leg);
+
+    // 取消预设高亮,因为组合已被修改
+    document.querySelectorAll('#presetSeg button').forEach(function (b) {
+      b.setAttribute('aria-pressed', 'false');
+    });
+    renderAll();
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', function () {
+    legs = [];
+    document.querySelectorAll('#presetSeg button').forEach(function (b) {
+      b.setAttribute('aria-pressed', 'false');
+    });
+    renderAll();
+  });
+
+  /* ---------------- 启动 ---------------- */
+  legs = clone(PRESETS.longCall);
+  renderAll();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>希腊字母 — 期权百科</title>
+<meta name="description" content="Delta、Gamma、Theta、Vega、Rho 分别衡量什么风险,附带可交互的敏感度曲线与实时代数值。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">第 05 章 · 风险的刻度</p>
+        <h1>希腊字母:风险的五个刻度</h1>
+        <p class="lede">
+          期权价格受五个因素影响,但"影响"是个模糊的词。希腊字母把这五个影响
+          量化成了五个数字——它们才是交易员真正盯着的仪表盘。
+        </p>
+      </div>
+
+      <h2><span class="hnum">1</span>希腊字母到底是什么</h2>
+
+      <p>
+        上一章我们知道,期权价格由 <span class="var">S</span>、<span class="var">K</span>、
+        <span class="var">T</span>、<span class="var">σ</span>、<span class="var">r</span> 五个变量决定。
+        但"股价涨 1 元,期权涨多少?"这个问题,光看价格曲线是答不清楚的。
+      </p>
+
+      <p>
+        希腊字母做的事情非常简单:<strong>把期权价格对每一个变量求一次"敏感度"</strong>。
+        用开车打比方——期权价格是车速,希腊字母就是仪表盘:
+      </p>
+
+      <div class="grid grid--3">
+        <div class="card card--flat">
+          <span class="readout__k">Delta</span>
+          <p class="small muted" style="margin:4px 0 0">速度表<br>"标的价格动一小步,我动多少"</p>
+        </div>
+        <div class="card card--flat">
+          <span class="readout__k">Gamma</span>
+          <p class="small muted" style="margin:4px 0 0">加速度表<br>"我的速度本身在怎么变"</p>
+        </div>
+        <div class="card card--flat">
+          <span class="readout__k">Theta</span>
+          <p class="small muted" style="margin:4px 0 0">油表<br>"什么都不做,每小时漏掉多少"</p>
+        </div>
+        <div class="card card--flat">
+          <span class="readout__k">Vega</span>
+          <p class="small muted" style="margin:4px 0 0">气压表<br>"市场情绪一变,我受多大影响"</p>
+        </div>
+        <div class="card card--flat">
+          <span class="readout__k">Rho</span>
+          <p class="small muted" style="margin:4px 0 0">利率表<br>"利率变了对我的影响(通常很小)"</p>
+        </div>
+      </div>
+
+      <div class="callout callout--key mt">
+        <span class="callout__t">为什么值得学</span>
+        因为<strong>希腊字母是可以相加的</strong>。你手里 10 张不同行权价、不同到期日的期权,
+        把各自的 Delta 加起来,就得到整个组合的 Delta——一眼就知道"标的涨 1 元,我这个组合大约赚多少"。
+        这是期权风控能够工程化的根本原因。
+      </div>
+
+      <h2 id="delta"><span class="hnum">2</span>Delta:方向敏感度</h2>
+
+      <p>
+        <strong>Delta = 标的价格每变动 1 元,期权价格变动多少元。</strong>
+      </p>
+
+      <div class="grid grid--2">
+        <div class="card">
+          <h3 class="card__title">看涨期权 Delta</h3>
+          <p class="small muted" style="margin:0 0 8px">取值范围 <span class="mono">0 ~ +1</span></p>
+          <ul class="small" style="margin:0;padding-left:1.2em">
+            <li>深度虚值 → 接近 <span class="mono">0</span></li>
+            <li>平值 → 约 <span class="mono">±0.5</span></li>
+            <li>深度实值 → 接近 <span class="mono">+1</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="card__title">看跌期权 Delta</h3>
+          <p class="small muted" style="margin:0 0 8px">取值范围 <span class="mono">−1 ~ 0</span></p>
+          <ul class="small" style="margin:0;padding-left:1.2em">
+            <li>深度虚值 → 接近 <span class="mono">0</span></li>
+            <li>平值 → 约 <span class="mono">−0.5</span></li>
+            <li>深度实值 → 接近 <span class="mono">−1</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>最好用的一个直觉:Delta ≈ 等效股数</h3>
+
+      <p>
+        假设一张看涨期权的 Delta 是 <span class="mono">0.60</span>,合约乘数是 100。那么持有这 1 张期权,
+        在<strong>很小的价格变动范围内</strong>,盈亏感受大致相当于持有
+        <span class="mono">0.60 × 100 = 60</span> 股该股票。
+      </p>
+
+      <p>
+        所以 Delta 有三个实用读法:
+      </p>
+      <ol>
+        <li><strong>等效仓位</strong>:告诉我这 1 张期权相当于多少股。</li>
+        <li><strong>对冲比率</strong>:我要卖空多少股,才能把这个方向性风险抵消掉(即 Delta 中性)。</li>
+        <li><strong>粗略的概率</strong>:平值看涨 Delta ≈ 0.5,大致对应"到期为实值的概率约 50%"。
+          这不严格,但在快速判断时非常有用。</li>
+      </ol>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">卖方记得加负号</span>
+        卖出一张看涨期权,Delta 是<strong>负的</strong>。因为你的盈亏和标的方向相反:
+        标的涨,你亏。所以"卖出 Delta 0.6 的看涨"等效于"做空 60 股"。
+        这正是备兑开仓(持股 + 卖看涨)能降低组合波动的原因——两者 Delta 部分抵消。
+      </div>
+
+      <h2><span class="hnum">3</span>Gamma:Delta 的变化速度</h2>
+
+      <p>
+        Delta 本身不是常数。标的价格一动,Delta 就变。Gamma 衡量的正是"<strong>Delta 变化得有多快</strong>"。
+      </p>
+
+      <div class="formula">
+        <div class="formula__body">Gamma ≈ Delta 的变化量 / 标的价格的变化量</div>
+        <div class="formula__note">
+          开车比喻:Delta 是速度,<strong>Gamma 是加速度</strong>。
+          Gamma 大的头寸,你会感觉"越涨越快"或"越跌越快",很难稳住。
+        </div>
+      </div>
+
+      <h3>Gamma 的关键性质</h3>
+      <ul>
+        <li><strong>看涨和看跌的 Gamma 完全相同</strong>(都是正数,只要你是买方)。买方 Gamma 为正,卖方 Gamma 为负。</li>
+        <li><strong>平值期权的 Gamma 最大</strong>,深度实值和深度虚值都很小。</li>
+        <li><strong>越接近到期,Gama 越极端</strong>:平值期权的 Gamma 会爆炸式上升,深度虚值的则趋近于 0。
+          这是"到期日风险"的数学根源。</li>
+      </ul>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">Gamma 风险:卖方最怕的东西</span>
+        卖出平值期权、且临近到期时,你的 Gamma 是很大的负数。
+        标的稍微一动,Delta 就剧烈变化,仓位方向迅速反转——
+        这就是为什么"<strong>到期日附近的平值期权卖方</strong>"被认为是最危险的位置之一。
+        Gamma 亏损往往来得又快又猛,而且<strong>不能用"我方向看对了"来解释</strong>。
+      </div>
+
+      <h2 id="theta"><span class="hnum">4</span>Theta:时间衰减</h2>
+
+      <p>
+        <strong>Theta = 每过一天,期权价格损失多少(其他条件不变)。</strong>
+        Theta 通常是<strong>负数</strong>(对买方而言),因为它衡量的是"什么都不做时的损耗"。
+      </p>
+
+      <div class="callout callout--key">
+        <span class="callout__t">Theta 是买方的敌人,卖方的朋友</span>
+        买方 Theta 为负:每天都在漏钱。<br>
+        卖方 Theta 为正:每天都在收钱。<br>
+        这是期权与股票最本质的差异之一——<strong>股票没有"必然损耗"这项成本,期权有。</strong>
+      </div>
+
+      <h3>Theta 不是匀速的</h3>
+
+      <p>
+        很多人以为时间价值是"按天平均分摊"的,其实完全不是。它有三个特点:
+      </p>
+
+      <ul>
+        <li><strong>非线性加速</strong>:前 30 天慢慢磨,最后 30 天急速掉。剩余时间越短,Theta 的绝对值越大。</li>
+        <li><strong>平值附近最大</strong>:平值期权的不确定性最高,所以时间价值最多,衰减也最快。</li>
+        <li><strong>周末不过期但不计息</strong>:期权按自然日衰减,但市场周末不开——所以周一开盘常能看到明显的价值损耗。</li>
+      </ul>
+
+      <h2 id="vega"><span class="hnum">5</span>Vega:波动率敏感度</h2>
+
+      <p>
+        <strong>Vega = 隐含波动率每变动 1 个百分点,期权价格变动多少。</strong>
+      </p>
+
+      <p>
+        Vega 是五个希腊字母里<strong>最容易被新手忽略、却最容易造成意外亏损</strong>的一个。
+        原因很简单:前面几个都对应"看得见"的东西(股价、时间),而 Vega 对应的是
+        "<strong>市场情绪</strong>"——一个没有行情图可看的变量。
+      </p>
+
+      <div class="grid grid--2">
+        <div class="card">
+          <h3 class="card__title">Vega 的性质</h3>
+          <ul class="small" style="margin:0;padding-left:1.2em">
+            <li>看涨、看跌的 Vega <strong>相同</strong></li>
+            <li>平值附近最大</li>
+            <li><strong>剩余时间越长,Vega 越大</strong>(与 Theta 相反)</li>
+            <li>买方 Vega 为正,卖方为负</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="card__title">为什么长短期权 Vega 更大</h3>
+          <p class="small muted" style="margin:0">
+            因为"未来的不确定性"在更长时间里才有发挥空间。
+            一个还有半年的期权,波动率预期从 30% 变到 40% 会显著改变结局;
+            而一个明天就到期、且已经很虚值的期权,波动率再怎么变也救不回来了。
+          </p>
+        </div>
+      </div>
+
+      <div class="callout callout--warn mt">
+        <span class="callout__t">Vega 亏损的典型剧本</span>
+        财报公布前,某股 IV 从 30% 飙到 80%,你买入看涨期权。
+        财报后股价确实涨了,但 IV 崩回 35%——<strong>Vega 的巨额亏损吃掉了方向上的盈利</strong>。
+        这就是第 <a href="pricing.html">04 章</a>讲过的 IV Crush。
+        记住:<strong>买入期权 = 做多波动率,卖出期权 = 做空波动率</strong>。
+      </div>
+
+      <h2><span class="hnum">6</span>Rho:利率敏感度</h2>
+
+      <p>
+        <strong>Rho = 无风险利率每变动 1 个百分点,期权价格变动多少。</strong>
+      </p>
+
+      <p>
+        对绝大多数个人交易者来说,Rho 是可以<strong>暂时忽略</strong>的那一个。原因:
+        短期期权的价格里,折现效应占比极小;而利率本身变动也很缓慢。
+      </p>
+
+      <p>
+        它只在两种场景下变得重要:
+      </p>
+      <ul>
+        <li><strong>超长期期权</strong>(如期限两年以上的 LEAPS),折现效应累积明显。</li>
+        <li><strong>利率剧烈变动期</strong>(如快速加息周期),深度实值期权会受较大影响。</li>
+      </ul>
+
+      <h2><span class="hnum">7</span>动手调:五维仪表盘</h2>
+
+      <p>
+        下面这个仪表盘会实时显示一张期权的全部五个希腊字母。
+        你还可以选择把其中任意一个"画成曲线",看它如何随标的价格变化。
+      </p>
+
+      <div class="panel">
+        <div class="panel__head">
+          <h3 class="panel__t">希腊字母仪表盘</h3>
+          <p class="panel__hint">左侧调参数 → 右侧看数值与曲线</p>
+        </div>
+
+        <div class="panel__body">
+          <div class="controls">
+            <div class="field">
+              <label>期权类型</label>
+              <div class="seg" id="gTypeSeg">
+                <button type="button" data-val="call" aria-pressed="true">看涨 Call</button>
+                <button type="button" data-val="put" aria-pressed="false">看跌 Put</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>标的现价 S <span class="field__val" data-for="gS">—</span></label>
+              <input type="range" id="gS" min="60" max="140" step="1" value="100">
+            </div>
+
+            <div class="field">
+              <label>行权价 K <span class="field__val" data-for="gK">—</span></label>
+              <input type="range" id="gK" min="60" max="140" step="1" value="100">
+            </div>
+
+            <div class="field">
+              <label>剩余天数 <span class="field__val" data-for="gD">—</span></label>
+              <input type="range" id="gD" min="1" max="365" step="1" value="60">
+              <p class="field__hint">拖到 1 天:看 Gamma 爆炸、Theta 加速</p>
+            </div>
+
+            <div class="field">
+              <label>隐含波动率 <span class="field__val" data-for="gV">—</span></label>
+              <input type="range" id="gV" min="5" max="150" step="1" value="30">
+            </div>
+
+            <div class="field">
+              <label>无风险利率 <span class="field__val" data-for="gR">—</span></label>
+              <input type="range" id="gR" min="0" max="100" step="1" value="2">
+            </div>
+
+            <hr class="rule" style="margin:4px 0">
+
+            <div class="field">
+              <label>画哪条曲线</label>
+              <div class="seg" id="gPickSeg">
+                <button type="button" data-val="delta" aria-pressed="true">Delta</button>
+                <button type="button" data-val="gamma" aria-pressed="false">Gamma</button>
+                <button type="button" data-val="theta" aria-pressed="false">Theta</button>
+                <button type="button" data-val="vega" aria-pressed="false">Vega</button>
+                <button type="button" data-val="rho" aria-pressed="false">Rho</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="readout">
+              <div class="readout__item">
+                <span class="readout__k">Delta</span>
+                <div class="readout__v" id="kDelta">—</div>
+                <span class="readout__note">标的涨 1 元,期权变动</span>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">Gamma</span>
+                <div class="readout__v" id="kGamma">—</div>
+                <span class="readout__note">标的涨 1 元,Delta 变动</span>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">Theta / 天</span>
+                <div class="readout__v" id="kTheta">—</div>
+                <span class="readout__note">每天损耗</span>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">Vega</span>
+                <div class="readout__v" id="kVega">—</div>
+                <span class="readout__note">IV 涨 1 个点,期权变动</span>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">Rho</span>
+                <div class="readout__v" id="kRho">—</div>
+                <span class="readout__note">利率涨 1 个点,期权变动</span>
+              </div>
+            </div>
+
+            <div class="tablewrap mt">
+              <table style="min-width:auto">
+                <thead>
+                  <tr><th>项目</th><th class="num">数值</th><th>说明</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>理论价</td><td class="num mono" id="kPrice">—</td><td class="small muted">BS 模型计算</td></tr>
+                  <tr><td>内在价值</td><td class="num mono" id="kInt">—</td><td class="small muted">立刻行权能拿到的</td></tr>
+                  <tr><td>时间价值</td><td class="num mono" id="kTime">—</td><td class="small muted">到期必然归零的部分</td></tr>
+                  <tr><td>实值概率</td><td class="num mono" id="kProb">—</td><td class="small muted">风险中性下的近似</td></tr>
+                  <tr><td>1 张等效股数</td><td class="num mono" id="kEquiv">—</td><td class="small muted">Delta × 100</td></tr>
+                  <tr><td>盈亏平衡点</td><td class="num mono" id="kBe">—</td><td class="small muted">到期不赚不亏的价位</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="chartbox mt">
+              <canvas id="greekChart" height="320" role="img" aria-label="希腊字母随标的价格变化的曲线"></canvas>
+            </div>
+            <div class="legend">
+              <span><i id="lg1" style="background:var(--profit)"></i><span id="lgName1">看涨</span></span>
+              <span><i id="lg2" style="background:var(--accent)"></i><span id="lgName2">看跌</span></span>
+              <span><i style="background:var(--ink4)"></i>行权价 K</span>
+              <span><i style="background:var(--gold)"></i>标的现价</span>
+            </div>
+            <p class="small muted" style="margin:10px 0 0" id="greekNote">—</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout--tip mt">
+        <span class="callout__t">在仪表盘上找这几个现象</span>
+        ① 选 <strong>Gamma</strong>,把剩余天数拖到 1 天:平值附近出现一个尖峰——这就是 Gamma 风险。<br>
+        ② 选 <strong>Theta</strong>,剩余天数从 365 拖到 1:曲线整体大幅下移,平值处最深——时间越紧,损耗越快。<br>
+        ③ 选 <strong>Vega</strong>,剩余天数从 1 拖到 365:曲线明显变高——长期期权对波动率更敏感。<br>
+        ④ 选 <strong>Rho</strong>:曲线几乎贴在零轴上,数值极小——理解为什么它可以被忽略。<br>
+        ⑤ 选 <strong>Gamma</strong> 或 <strong>Vega</strong>:看涨与看跌两条线<strong>完全重合</strong>——它们对看涨看跌是一样的。
+      </div>
+
+      <h2><span class="hnum">8</span>希腊字母怎么真正用起来</h2>
+
+      <h3>① 组合层面相加</h3>
+
+      <p>
+        这是希腊字母最强大的性质。假设你持有以下头寸(每张乘数 100):
+      </p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>头寸</th><th class="num">数量</th><th class="num">单张 Delta</th><th class="num">贡献 Delta</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>买入看涨 K=100</td><td class="num">2</td><td class="num">+0.60</td><td class="num pos">+1.20</td></tr>
+            <tr><td>卖出看涨 K=110</td><td class="num">1</td><td class="num">+0.35</td><td class="num neg">−0.35</td></tr>
+            <tr><td>买入看跌 K=95</td><td class="num">1</td><td class="num">−0.25</td><td class="num neg">−0.25</td></tr>
+            <tr style="font-weight:700">
+              <td colspan="3">组合 Delta 合计</td><td class="num" style="color:var(--accent-2)">+0.60</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        结论:这个组合的 Delta 是 <span class="mono">+0.60</span>。换算成实际敞口,
+        相当于持有 <span class="mono">0.60 × 100 = 60</span> 股。所以标的每涨 1 元,
+        组合大约赚 60 元;每跌 1 元,亏 60 元。
+      </p>
+
+      <div class="callout callout--key">
+        <span class="callout__t">一眼看懂自己的风险</span>
+        不看希腊字母,你面对的是"4 张不同行权价的期权",完全无法直观判断总方向敞口。
+        有了希腊字母,你立刻知道"<strong>我现在等效于持有 60 股</strong>"。
+        这就是为什么专业交易台的屏幕上,最显眼的永远是几个希腊字母的合计数。
+      </div>
+
+      <h3>② Delta 中性对冲</h3>
+
+      <p>
+        如果组合 Delta 是 <span class="mono">+60</span>,而你想暂时不承担方向性风险,
+        可以<strong>卖空 60 股</strong>标的。此时组合 Delta 归零,称为 <strong>Delta 中性(Delta Neutral)</strong>。
+      </p>
+
+      <p>
+        但要注意:标的一旦移动,Delta 就会因为 Gamma 而改变,中性状态立刻被打破。
+        所以 Delta 中性不是一个"设好就不管"的状态,而是需要<strong>持续调整</strong>的过程,
+        业内叫 <strong>动态对冲(Dynamic Hedging)</strong>。Gamma 越大,调整就越频繁、成本越高。
+      </p>
+
+      <h3>③ 用希腊字母做归因</h3>
+
+      <p>
+        如果今天你的期权组合亏了钱,可以用希腊字母拆解原因:
+      </p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>亏钱的原因</th><th>看哪个希腊字母</th><th>典型场景</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>方向看错</td><td class="mono">Delta</td><td>标的走势与预期相反</td></tr>
+            <tr><td>波动率下降</td><td class="mono">Vega</td><td>事件落地后 IV 崩塌</td></tr>
+            <tr><td>时间流逝</td><td class="mono">Theta</td><td>横盘不动,买方慢慢亏</td></tr>
+            <tr><td>行情剧烈反转</td><td class="mono">Gamma</td><td>临近到期的卖方被反复打脸</td></tr>
+            <tr><td>利率环境变化</td><td class="mono">Rho</td><td>极少成为主因</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--tip">
+        <span class="callout__t">一个实用的自查习惯</span>
+        每次开仓前问自己:<strong>我赚的是哪个希腊字母的钱?我愿意承担哪个希腊字母的风险?</strong><br>
+        "我看涨"其实是在赚 Delta 的钱,同时承担 Theta 和 Vega 的损耗。<br>
+        "我卖期权收租"其实是在赚 Theta 的钱,同时承担 Gamma 和 Vega 的风险。<br>
+        想清楚这一点,很多亏损就不再是"意外"。
+      </div>
+
+      <h2><span class="hnum">9</span>小结</h2>
+
+      <div class="callout callout--key">
+        <span class="callout__t">五个希腊字母,一句话一个</span>
+        <ul style="margin:8px 0 0;padding-left:1.2em">
+          <li><strong>Delta</strong> — 方向敞口,可理解为等效股数,也是粗略的实值概率。</li>
+          <li><strong>Gamma</strong> — Delta 的变化速度;买方为正、卖方为负,临近到期的平值期权最凶险。</li>
+          <li><strong>Theta</strong> — 每天的时间损耗;买方为负、卖方为正,且越接近到期越快。</li>
+          <li><strong>Vega</strong> — 波动率敏感度;买方做多波动率,卖方做空波动率,期限越长越敏感。</li>
+          <li><strong>Rho</strong> — 利率敏感度,短期期权可忽略,超长期期权才需要关注。</li>
+        </ul>
+      </div>
+
+      <p>
+        到这里,单张期权的知识已经完整了。但真实交易中我们很少只持有一张期权——
+        我们关心的是"<strong>怎么把多张期权拼成一个特定形状的盈亏结构</strong>"。
+        下一章进入组合策略。
+      </p>
+
+      <p class="mt2">
+        <a class="btn" href="strategies.html" style="display:inline-block">继续读第 06 章 · 组合策略 →</a>
+      </p>
+
+      <div class="chaptercta">
+        <div class="chaptercta__txt">
+          <span class="chaptercta__t">▶ 想动手试一遍?</span>
+          去<strong>模拟交易台</strong>,用一支美股标的走完整流程:
+          选到期 → 读期权链 → 下单 → 推动行情 → 平仓,每一步都有对应的知识点讲解,还能看到自己的盈亏是怎么来的。
+        </div>
+        <a class="btn" href="simulator.html">进入模拟交易 →</a>
+      </div>
+
+    </article>
+
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var st = { type: 'call', S: 100, K: 100, days: 60, vol: 30, rate: 2, pick: 'delta' };
+
+  var canvas = document.getElementById('greekChart');
+
+  function params(type, S) {
+    return {
+      type: type, S: S, K: st.K,
+      T: st.days / 365,
+      sigma: st.vol / 100,
+      r: st.rate / 100
+    };
+  }
+
+  var GREEK_META = {
+    delta: {
+      label: 'Delta', note: 'Delta 衡量方向敏感度:标的每涨 1 元,期权价格变动多少。看涨区间 0~1,看跌区间 −1~0。平值约 ±0.5。',
+      pick: function (r) { return r.delta; }
+    },
+    gamma: {
+      label: 'Gamma', note: 'Gamma 衡量 Delta 的变化速度。看涨看跌完全相同(买方为正)。平值最大,且越接近到期越极端——这就是到期日 Gamma 风险的来源。',
+      pick: function (r) { return r.gamma; }
+    },
+    theta: {
+      label: 'Theta/天', note: 'Theta 是每天的时间损耗。买方为负(漏钱),卖方为正(收钱)。注意曲线在平值处最深,且剩余时间越短损耗越快。',
+      pick: function (r) { return BS.thetaPerDay(r.theta); }
+    },
+    vega: {
+      label: 'Vega', note: 'Vega 衡量隐含波动率敏感度:IV 每涨 1 个百分点,期权价格变动多少。看涨看跌相同,剩余时间越长 Vega 越大。',
+      pick: function (r) { return BS.vegaPerPct(r.vega); }
+    },
+    rho: {
+      label: 'Rho', note: 'Rho 衡量利率敏感度:利率每涨 1 个百分点,期权价格变动多少。数值通常很小,短期期权可忽略。',
+      pick: function (r) { return BS.rhoPerPct(r.rho); }
+    }
+  };
+
+  function render() {
+    var res = BS.price(params(st.type, st.S));
+    var meta = GREEK_META[st.pick];
+
+    // 五维读数
+    document.getElementById('kDelta').textContent = res.delta.toFixed(3);
+    document.getElementById('kGamma').textContent = res.gamma.toFixed(4);
+    var th = BS.thetaPerDay(res.theta);
+    var thEl = document.getElementById('kTheta');
+    thEl.textContent = th.toFixed(4);
+    thEl.style.color = th < 0 ? 'var(--loss)' : 'var(--profit)';
+    document.getElementById('kVega').textContent = BS.vegaPerPct(res.vega).toFixed(3);
+    document.getElementById('kRho').textContent = BS.rhoPerPct(res.rho).toFixed(4);
+
+    document.getElementById('kPrice').textContent = res.price.toFixed(3);
+    document.getElementById('kInt').textContent = res.intrinsic.toFixed(3);
+    document.getElementById('kTime').textContent = res.timeValue.toFixed(3);
+    document.getElementById('kProb').textContent = (res.probITM * 100).toFixed(1) + '%';
+    document.getElementById('kEquiv').textContent = (res.delta * 100).toFixed(1) + ' 股';
+
+    var be = st.type === 'call' ? st.K + res.price : st.K - res.price;
+    document.getElementById('kBe').textContent = be.toFixed(2);
+
+    // 曲线
+    if (canvas) {
+      var lo = Math.max(1, Math.round(st.K * 0.6));
+      var hi = Math.round(st.K * 1.45);
+      var callPts = [], putPts = [];
+      var N = 150;
+      for (var i = 0; i <= N; i++) {
+        var S = lo + (hi - lo) * i / N;
+        callPts.push([S, meta.pick(BS.price(params('call', S)))]);
+        putPts.push([S, meta.pick(BS.price(params('put', S)))]);
+      }
+
+      Charts.bind(canvas, function () {
+        Charts.lines(canvas, {
+          height: 320,
+          series: [
+            { name: '看涨', color: Charts.PALETTE.profit, points: callPts, width: 2.6 },
+            { name: '看跌', color: Charts.PALETTE.accent, points: putPts, width: 2.6, dash: [6, 4] }
+          ],
+          xLabel: '标的价格', yLabel: meta.label,
+          includeZero: true,
+          xFmt: function (v) { return v.toFixed(0); },
+          yFmt: function (v) { return v.toFixed(Math.abs(v) < 1 ? 3 : 2); },
+          vlines: [
+            { v: st.K, label: 'K=' + st.K.toFixed(0), color: Charts.PALETTE.ink4 },
+            { v: st.S, label: '现价', color: Charts.PALETTE.gold, dash: [] }
+          ]
+        });
+      });
+    }
+
+    document.getElementById('lgName1').textContent = '看涨 ' + meta.label;
+    document.getElementById('lgName2').textContent = '看跌 ' + meta.label;
+    document.getElementById('greekNote').textContent = meta.note;
+  }
+
+  Site.bindSeg('gTypeSeg', function (v) { st.type = v; render(); }, 'call');
+  Site.bindSeg('gPickSeg', function (v) { st.pick = v; render(); }, 'delta');
+
+  Site.bindSlider('gS', function (v) { st.S = v; render(); }, function (v) { return v.toFixed(0); });
+  Site.bindSlider('gK', function (v) { st.K = v; render(); }, function (v) { return v.toFixed(0); });
+  Site.bindSlider('gD', function (v) { st.days = v; render(); }, function (v) { return v.toFixed(0) + ' 天'; });
+  Site.bindSlider('gV', function (v) { st.vol = v; render(); }, function (v) { return v.toFixed(0) + '%'; });
+  Site.bindSlider('gR', function (v) { st.rate = v; render(); }, function (v) { return v.toFixed(0) + '%'; });
+
+  render();
+})();
+</script>
+</body>
+</html>

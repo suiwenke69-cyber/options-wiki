@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>术语表 — 期权百科</title>
+<meta name="description" content="按主题收录 60 多条股票期权常用术语,每条给出中英对照与一句大白话解释,并澄清 7 组最容易混淆的概念。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">第 10 章 · 随时查阅</p>
+        <h1>中英对照术语表</h1>
+        <p class="lede">看研报、翻软件、听直播时撞见的期权术语,这里按主题收好:一条一句大白话,中英对照,随时回来查。</p>
+      </div>
+
+      <p>为了读起来不绕,本页所有例子都用同一套教学数字:某股票现价 <span class="mono">100</span> 元,行权价 <span class="mono">100</span> 元的看涨期权权利金 <span class="mono">5</span> 元,一张合约按 <span class="mono">100</span> 股计(真实乘数、门槛与费率一律<strong>以交易所与券商规则为准</strong>)。凡涉及规则细节的条目,都已单独注明。</p>
+
+      <h2><span class="hnum">1</span>基础概念</h2>
+
+      <div class="terms">
+        <div class="term">
+          <p class="term__t">期权</p>
+          <span class="term__en">Option</span>
+          <p class="term__d">一份「以后再说」的权利:先付一笔小钱,换到未来按约定价格买或卖某个东西的权利,到期不想做就可以不做。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">看涨期权 / 认购</p>
+          <span class="term__en">Call</span>
+          <p class="term__d">赌涨或者不看跌的合约。拿着它的人有权按行权价买入标的,标的价格越涨,这张合约越值钱。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">看跌期权 / 认沽</p>
+          <span class="term__en">Put</span>
+          <p class="term__d">方向相反的合约。拿着它的人有权按行权价卖出标的,标的价格越跌越值钱,像给手里的持仓买了份保险。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">买方</p>
+          <span class="term__en">Holder</span>
+          <p class="term__d">付权利金、拿到选择权的一方。到期可以做也可以不做,最大损失就是已经付出去的那笔权利金。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">卖方</p>
+          <span class="term__en">Writer</span>
+          <p class="term__d">收权利金、承担义务的一方。买方要行权时卖方必须配合履约,所以通常要交一笔保证金压在账户里。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">标的资产</p>
+          <span class="term__en">Underlying</span>
+          <p class="term__d">期权挂钩的那个东西:某只股票、某个指数或某只 ETF。它的涨跌决定了期权的价值。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">行权</p>
+          <span class="term__en">Exercise</span>
+          <p class="term__d">买方真的动用权利,按行权价买入或卖出标的资产。行权之后往往涉及股票和资金的真实交收。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">履约 / 指派</p>
+          <span class="term__en">Assignment</span>
+          <p class="term__d">买方行权后,清算所把这份义务分派给某个卖方去执行,这个「被点到」的过程叫指派。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">到期日</p>
+          <span class="term__en">Expiration Date</span>
+          <p class="term__d">合约失效的那一天。过了这天权利作废,所以期权不像股票可以一直拿着,时间本身就是它的敌人。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">行权价</p>
+          <span class="term__en">Strike Price / Exercise Price</span>
+          <p class="term__d">合约里白纸黑字写死的买卖价格。它和当前市价的关系,决定这张期权是实值、平值还是虚值。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">权利金</p>
+          <span class="term__en">Premium</span>
+          <p class="term__d">期权的价格。买方付出去、卖方收进来,由内在价值和时间价值两部分加在一起。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">合约单位 / 乘数</p>
+          <span class="term__en">Contract Multiplier</span>
+          <p class="term__d">一张合约代表多少份标的,算总金额时要用它去乘。本页按一张对应 100 股举例,真实数值以交易所与券商规则为准。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">实值</p>
+          <span class="term__en">In the Money</span>
+          <p class="term__d">现在立刻行权就能赚到钱的状态:看涨期权是市价高于行权价,看跌期权是市价低于行权价。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">平值</p>
+          <span class="term__en">At the Money</span>
+          <p class="term__d">市价和行权价差不多相等,此刻行权不赚不亏。这类合约的权利金几乎全部是时间价值,变化也最敏感。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">虚值</p>
+          <span class="term__en">Out of the Money</span>
+          <p class="term__d">现在行权不划算的状态:看涨期权市价低于行权价,看跌期权市价高于行权价。它便宜,是因为到期归零的概率更高。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">欧式期权</p>
+          <span class="term__en">European Option</span>
+          <p class="term__d">只能在到期日当天行权,平时不能提前行使权利。它说的是行权时间,和欧洲市场没有关系。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">美式期权</p>
+          <span class="term__en">American Option</span>
+          <p class="term__d">到期日之前任何一个交易日都能行权,权利更灵活,所以价格通常比同条件的欧式期权略贵一点。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">内在价值</p>
+          <span class="term__en">Intrinsic Value</span>
+          <p class="term__d">现在立刻行权能拿到手的钱,最少是零、不会是负数。只有实值期权才有内在价值。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">时间价值</p>
+          <span class="term__en">Time Value</span>
+          <p class="term__d">权利金里超出内在价值的那部分,买的是「还有机会变得更值钱」这个可能性。越接近到期,它剩得越少。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">平仓</p>
+          <span class="term__en">Close Position</span>
+          <p class="term__d">在到期前做一笔方向相反的交易,把原来的仓位抵消掉,不必等到行权。绝大多数交易其实都是靠平仓了结的。</p>
+        </div>
+      </div>
+
+      <h2><span class="hnum">2</span>价格与价值</h2>
+
+      <div class="terms">
+        <div class="term">
+          <p class="term__t">理论价</p>
+          <span class="term__en">Theoretical Price</span>
+          <p class="term__d">用定价模型算出来的「应该值多少」,只是一个参考坐标,不是你能成交的价。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">市场价格</p>
+          <span class="term__en">Market Price</span>
+          <p class="term__d">盘面上真实成交的价,由买卖双方的报单撮合出来,可能高于也可能低于理论价。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">买卖价差</p>
+          <span class="term__en">Bid-Ask Spread</span>
+          <p class="term__d">卖价减买价的差额。你立刻买进再立刻卖出,价差就是你付出的隐形成本,价差越小说明越好成交。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">买价</p>
+          <span class="term__en">Bid</span>
+          <p class="term__d">此刻有人愿意出的最高价。你急着卖出,就只能按这个价成交。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">卖价</p>
+          <span class="term__en">Ask / Offer</span>
+          <p class="term__d">此刻有人愿意卖的最低价。你急着买进,就得按这个价成交。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">成交量</p>
+          <span class="term__en">Volume</span>
+          <p class="term__d">今天已经成交了多少张合约,说明这个合约今天有多热闹。热闹不等于持仓多。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">持仓量 / 未平仓合约</p>
+          <span class="term__en">Open Interest</span>
+          <p class="term__d">到此刻还没被平掉的合约总张数,衡量留在场内的资金规模。它和成交量不是一回事。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">流动性</p>
+          <span class="term__en">Liquidity</span>
+          <p class="term__d">想买能买到、想卖能卖掉,而且价格不会被自己的单子推动。流动性差时买卖价差大,进出都吃亏。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">隐含波动率</p>
+          <span class="term__en">Implied Volatility (IV)</span>
+          <p class="term__d">从当前权利金反推出来的、市场对未来波动的预期。权利金越贵,通常说明隐含波动率越高。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">历史波动率</p>
+          <span class="term__en">Historical / Realized Volatility</span>
+          <p class="term__d">标的过去一段时间真实波动了多少。它是已经发生的事实,不做任何预测。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">波动率微笑</p>
+          <span class="term__en">Volatility Smile</span>
+          <p class="term__d">同一到期日下,把不同行权价的隐含波动率连成线,常常中间低、两头翘,像一张笑脸。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">波动率期限结构</p>
+          <span class="term__en">Term Structure</span>
+          <p class="term__d">把不同到期日的隐含波动率排在一起看高低关系,反映市场对近期和远期的预期不一样。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">IV 崩塌</p>
+          <span class="term__en">IV Crush</span>
+          <p class="term__d">财报或重大事件落地后,预期消失,隐含波动率迅速回落,权利金被抽走一大截。买方即使方向看对,也可能照样亏钱。</p>
+        </div>
+      </div>
+
+      <h2><span class="hnum">3</span>希腊字母与风险</h2>
+
+      <div class="terms">
+        <div class="term">
+          <p class="term__t">Delta</p>
+          <span class="term__en">Δ</span>
+          <p class="term__d">标的涨 1 元,期权价格大约跟着变动多少。看涨期权 Delta 为正,看跌为负,也常被当成「相当于持有多少股」。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">Gamma</p>
+          <span class="term__en">Γ</span>
+          <p class="term__d">Delta 自己的变化速度。Gamma 大,说明 Delta 变得快、仓位风险翻脸也快;临近到期的平值期权 Gamma 最大。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">Theta</p>
+          <span class="term__en">Θ</span>
+          <p class="term__d">每过一天,时间价值大约流失多少。对买方是负的,对卖方是正的,所以它被称为买方每天的敌人。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">Vega</p>
+          <span class="term__en">ν</span>
+          <p class="term__d">隐含波动率变动 1 个百分点,期权价格大约变动多少。买期权的人盼着波动率涨,卖的人盼着它跌。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">Rho</p>
+          <span class="term__en">ρ</span>
+          <p class="term__d">利率变动对期权价格的影响。在短期合约上它通常是五个希腊字母里最小的一个,最容易被忽略。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">方向性风险</p>
+          <span class="term__en">Directional Risk</span>
+          <p class="term__d">押注标的涨跌带来的风险,说白了就是「方向看反了」的那部分亏损。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">时间衰减</p>
+          <span class="term__en">Time Decay</span>
+          <p class="term__d">时间价值随着到期临近不断减少的现象。越接近到期掉得越快,由 Theta 来衡量。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">保证金</p>
+          <span class="term__en">Margin</span>
+          <p class="term__d">卖方为了证明自己赔得起而压在账户里的钱,它不是手续费。买方不用交,因为最大亏损在开仓时就已经付清了。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">初始保证金</p>
+          <span class="term__en">Initial Margin</span>
+          <p class="term__d">开仓那一刻就要交足的最低金额。具体比例和算法以交易所与券商规则为准。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">维持保证金</p>
+          <span class="term__en">Maintenance Margin</span>
+          <p class="term__d">持仓期间账户里必须一直保留的最低金额。它比初始保证金低,一旦跌破就会收到追保通知。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">追保通知</p>
+          <span class="term__en">Margin Call</span>
+          <p class="term__d">账户资金不够时,券商要求你补钱的提醒。限期内不补足,下一步就是被强制平仓。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">强制平仓</p>
+          <span class="term__en">Forced Liquidation</span>
+          <p class="term__d">没按时补足保证金,券商替你把仓位卖掉以控制风险。什么时候卖、卖什么价,都由不得你选。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">杠杆</p>
+          <span class="term__en">Leverage</span>
+          <p class="term__d">用一小笔钱撬动大得多的名义仓位。赚得快也亏得快;买方最多亏掉权利金,卖方的亏损却可能远超保证金。</p>
+        </div>
+      </div>
+
+      <h2><span class="hnum">4</span>策略</h2>
+
+      <div class="terms">
+        <div class="term">
+          <p class="term__t">备兑开仓</p>
+          <span class="term__en">Covered Call</span>
+          <p class="term__d">手里先拿着股票,再卖出一张看涨期权收权利金。股价涨过行权价股票会被买走,换来的是这份「租金」收入。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">保护性看跌</p>
+          <span class="term__en">Protective Put</span>
+          <p class="term__d">持有股票的同时买一张看跌期权,等于给持仓买保险。跌下去有赔付,代价是先付一笔保险费。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">牛市价差</p>
+          <span class="term__en">Bull Spread</span>
+          <p class="term__d">同方向、不同行权价的一买一卖,赌温和上涨。比单买便宜,但盈利也被上面那条腿封住了。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">熊市价差</p>
+          <span class="term__en">Bear Spread</span>
+          <p class="term__d">牛市价差的反向版本,赌温和下跌。用卖出那条腿收到的钱,去补贴买入那条腿的成本。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">跨式</p>
+          <span class="term__en">Straddle</span>
+          <p class="term__d">同一个行权价上同时买看涨和看跌,只赌「会大动」,不赌方向。波动不够大的话,两张权利金都白付。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">宽跨式</p>
+          <span class="term__en">Strangle</span>
+          <p class="term__d">跨式的省钱版:买一张虚值看涨加一张虚值看跌。成本更低,但要动得更多才能回本。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">铁鹰</p>
+          <span class="term__en">Iron Condor</span>
+          <p class="term__d">用四张合约围出一个价格区间,赌标的待在区间里不动。收两笔权利金、两头风险都锁死,是最常见的卖方组合。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">蝶式</p>
+          <span class="term__en">Butterfly</span>
+          <p class="term__d">在三个行权价上摆出对称的一买两卖再一买,赌价格停在中间。成本很小、风险有限,最大盈利同样有限。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">日历价差</p>
+          <span class="term__en">Calendar Spread</span>
+          <p class="term__d">同一行权价、不同到期日的一卖一买,靠近月的时间价值掉得更快来获利。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">领口</p>
+          <span class="term__en">Collar</span>
+          <p class="term__d">持股 + 买保护性看跌 + 卖虚值看涨。用卖看涨收的钱去补贴保险,代价是上涨空间也被封住了。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">裸卖 / 无担保卖出</p>
+          <span class="term__en">Naked / Uncovered</span>
+          <p class="term__d">手上没有相应的标的就卖出期权。收的权利金不多,风险却可能极大——裸卖看涨理论上的亏损没有上限。</p>
+        </div>
+      </div>
+
+      <h2><span class="hnum">5</span>市场与机制</h2>
+
+      <div class="terms">
+        <div class="term">
+          <p class="term__t">场内市场</p>
+          <span class="term__en">Exchange-Traded</span>
+          <p class="term__d">在交易所挂牌、规格统一、由清算所担保的市场。条款标准化,流动性通常也更好。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">场外市场</p>
+          <span class="term__en">OTC</span>
+          <p class="term__d">买卖双方私下谈条件的市场,规格可以自由定制,但对手方会不会赖账要自己判断。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">清算所</p>
+          <span class="term__en">Clearing House</span>
+          <p class="term__d">交易所背后的中央对手方:对买方它当卖方,对卖方它当买方,保证合约最终一定能兑现。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">做市商</p>
+          <span class="term__en">Market Maker</span>
+          <p class="term__d">持续挂出买价和卖价、随时准备成交的机构。他们赚买卖价差,同时让市场一直有价可报。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">现金交割</p>
+          <span class="term__en">Cash Settlement</span>
+          <p class="term__d">到期不用真的交股票,直接把赚亏的差额用现金结清。指数类期权多用这种方式。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">实物交割</p>
+          <span class="term__en">Physical Settlement</span>
+          <p class="term__d">到期真的要一手交钱、一手交股票。个股期权常用这种安排,所以要提前想好资金和持仓够不够。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">自动行权</p>
+          <span class="term__en">Automatic Exercise</span>
+          <p class="term__d">到期时如果实值到一定程度,系统自动替买方行权,不用自己下单。具体门槛以交易所与券商规则为准。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">最后交易日</p>
+          <span class="term__en">Last Trading Day</span>
+          <p class="term__d">还能买卖这张合约的最后一天,它常常和到期日不是同一天。过了这天,就只剩下行权或者作废两条路。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">投资者适当性</p>
+          <span class="term__en">Investor Suitability</span>
+          <p class="term__d">券商按你的资金、交易经验和风险承受力,决定你能开通哪一档期权权限。分级与门槛以交易所与券商规则为准。</p>
+        </div>
+        <div class="term">
+          <p class="term__t">涨跌停 / 熔断</p>
+          <span class="term__en">Price Limit / Circuit Breaker</span>
+          <p class="term__d">交易所给价格波动装的刹车:涨跌停限制单日最大涨跌幅,熔断是波动过大时暂停交易一段时间。是否适用、具体幅度以交易所公告为准。</p>
+        </div>
+      </div>
+
+      <h2><span class="hnum">6</span>容易混淆的概念对照</h2>
+
+      <p>下面这 7 组词长得像、用起来却完全不同。看研报卡壳时,多半就是卡在这里。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>维度</th>
+              <th>A</th>
+              <th>B</th>
+              <th>一句话区别</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>权利金 vs 保证金</td>
+              <td>买方付给卖方的钱,是期权的价格,付出去就不会再追加</td>
+              <td>卖方押在账户里的担保金,不是费用,平仓后可以拿回</td>
+              <td>一个是「买价」,一个是「押金」;买方只付权利金,卖方只交保证金。</td>
+            </tr>
+            <tr>
+              <td>内在价值 vs 时间价值</td>
+              <td>现在立刻行权就能拿到手的钱,最少为零</td>
+              <td>权利金里多出来的部分,买的是未来变化的可能性</td>
+              <td>内在价值是「已经到手的」,时间价值是「还没发生的」;到期时时间价值必然归零。</td>
+            </tr>
+            <tr>
+              <td>隐含波动率 vs 历史波动率</td>
+              <td>从当前权利金反推出来的、市场对未来的预期</td>
+              <td>标的过去真实波动了多少,已是既成事实</td>
+              <td>一个朝前看,一个朝后看;两者经常对不上。</td>
+            </tr>
+            <tr>
+              <td>行权 vs 平仓</td>
+              <td>按行权价真的买进或卖出标的,涉及股票与资金的交收</td>
+              <td>做一笔反向交易把仓位抵消掉,只结算差价</td>
+              <td>行权是「行使权利」,平仓是「把合约卖掉」;多数交易者用平仓了结。</td>
+            </tr>
+            <tr>
+              <td>欧式 vs 美式</td>
+              <td>只能在到期日当天行权</td>
+              <td>到期前任何一个交易日都能行权</td>
+              <td>区别只在「什么时候能行权」,与欧美市场无关,也不代表哪个更高级。</td>
+            </tr>
+            <tr>
+              <td>买方 vs 卖方</td>
+              <td>付权利金、手握权利,最大亏损就是那笔权利金</td>
+              <td>收权利金、承担义务,要交保证金,亏损可能远超权利金</td>
+              <td>买方花钱买选择权,卖方收钱担义务;期权的不对称就在这儿。</td>
+            </tr>
+            <tr>
+              <td>期货 vs 期权</td>
+              <td>买卖双方都有义务,到期必须履约,两边都交保证金</td>
+              <td>只有卖方有义务,买方可以不行权,只有卖方交保证金</td>
+              <td>期货是「必须做」,期权是「可以做」;期权买方多了一次反悔的机会。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="rule">
+
+      <div class="callout callout--key">
+        <span class="callout__t">怎么用这份表</span>
+        看研报、用交易软件时遇到不认识的词,回到这里查一句大白话就够了;想真正弄懂背后的逻辑,本站<strong>第 01–08 章</strong>对这些概念都有展开讲解——先从<a href="basics.html">第 01 章</a>建立直觉,再看<a href="greeks.html">第 05 章</a>弄懂希腊字母与风险,市场规则细节见 <a href="market.html">第 08 章</a>。
+      </div>
+
+      <div class="chaptercta">
+        <div class="chaptercta__txt">
+          <span class="chaptercta__t">▶ 想动手试一遍?</span>
+          去<strong>模拟交易台</strong>,用一支美股标的走完整流程:
+          选到期 → 读期权链 → 下单 → 推动行情 → 平仓,每一步都有对应的知识点讲解,还能看到自己的盈亏是怎么来的。
+        </div>
+        <a class="btn" href="simulator.html">进入模拟交易 →</a>
+      </div>
+
+    </article>
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

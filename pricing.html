@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>定价原理 — 期权百科</title>
+<meta name="description" content="拆开权利金的内在价值与时间价值,用可交互的 Black-Scholes 计算器亲手验证五个影响因素的作用方向。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">第 04 章 · 价格从哪来</p>
+        <h1>权利金凭什么值这个价?</h1>
+        <p class="lede">
+          同一只股票,行权价 100 的看涨期权卖 5 元,行权价 110 的只卖 1.5 元。
+          差价是怎么来的?这一章把权利金拆成两块,再找出影响它的五个因素。
+        </p>
+      </div>
+
+      <h2><span class="hnum">1</span>权利金 = 内在价值 + 时间价值</h2>
+
+      <p>
+        这是整章最重要的一句话。任何一张期权的价格,都可以拆成两个部分:
+      </p>
+
+      <div class="grid grid--2">
+        <div class="card">
+          <h3 class="card__title">内在价值 <span class="muted small">Intrinsic Value</span></h3>
+          <p class="small" style="margin:0 0 8px">
+            <strong>假设现在立刻行权,能赚多少。</strong>这是期权的"硬价值",实实在在。
+          </p>
+          <div class="formula" style="padding:10px 12px">
+            <div class="formula__body" style="font-size:14.5px">看涨:max(S − K, 0)
+看跌:max(K − S, 0)</div>
+          </div>
+          <p class="small muted" style="margin:8px 0 0">
+            虚值期权的内在价值<strong>恒为 0</strong>——立刻行权是亏的,所以宁可不做。
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="card__title">时间价值 <span class="muted small">Time Value</span></h3>
+          <p class="small" style="margin:0 0 8px">
+            <strong>为"未来还可能变得值钱"这件事付的钱。</strong>它是一种可能性溢价,
+            也是期权最迷人也最危险的部分。
+          </p>
+          <div class="formula" style="padding:10px 12px">
+            <div class="formula__body" style="font-size:14.5px">时间价值 = 权利金 − 内在价值</div>
+          </div>
+          <p class="small muted" style="margin:8px 0 0">
+            到期那一刻,时间价值<strong>必然归零</strong>。这就是"期权会过期"的真正含义。
+          </p>
+        </div>
+      </div>
+
+      <div class="callout callout--key mt">
+        <span class="callout__t">用一句话记住</span>
+        内在价值回答"<strong>现在值多少</strong>",时间价值回答"<strong>未来还可能值多少</strong>"。
+        到期日那天,第二个问题的答案变成"零",所以期权价格必然收敛到内在价值。
+      </div>
+
+      <h2><span class="hnum">2</span>五个因素,各自往哪个方向推</h2>
+
+      <p>
+        期权价格由五个变量决定。下表是它们各自的影响方向——<strong>这张表的每一行,你都可以在下面的计算器里亲手验证</strong>。
+      </p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>因素</th><th>符号</th><th>看涨期权</th><th>看跌期权</th><th>直觉解释</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>标的现价</td><td class="mono">S</td>
+              <td class="pos">↑ 涨</td><td class="neg">↓ 跌</td>
+              <td>标的越贵,看涨越容易赚钱,看跌越难</td>
+            </tr>
+            <tr>
+              <td>行权价</td><td class="mono">K</td>
+              <td class="neg">↓ 跌</td><td class="pos">↑ 涨</td>
+              <td>行权价越高,看涨越难达到,看跌越容易</td>
+            </tr>
+            <tr>
+              <td>剩余时间</td><td class="mono">T</td>
+              <td class="pos">↑ 涨</td><td class="pos">↑ 涨</td>
+              <td>时间越多,变得值钱的机会越多,<strong>买卖双方都涨</strong></td>
+            </tr>
+            <tr>
+              <td>波动率</td><td class="mono">σ</td>
+              <td class="pos">↑ 涨</td><td class="pos">↑ 涨</td>
+              <td>波动越大,极端行情概率越高,<strong>两边都涨</strong></td>
+            </tr>
+            <tr>
+              <td>无风险利率</td><td class="mono">r</td>
+              <td class="pos">↑ 微涨</td><td class="neg">↓ 微跌</td>
+              <td>利率影响折现,对短期期权影响很小</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--tip">
+        <span class="callout__t">请注意第三、四行</span>
+        剩余时间和波动率上升时,<strong>看涨和看跌同时变贵</strong>。
+        原因很朴素:它们衡量的都是"未来的不确定性"。
+        不确定性变大,两边都有机会赚大钱,所以两边都涨价。这是期权与股票最不同的地方——
+        期权交易的不只是方向,更是<strong>不确定性本身</strong>。
+      </div>
+
+      <h2><span class="hnum">3</span>Black-Scholes:把直觉写成公式</h2>
+
+      <p>
+        1973 年,Black、Scholes 和 Merton 给出了期权定价的解析解,并因此获得诺贝尔经济学奖。
+        你不需要会推导它,但值得看一眼它的样子——因为<strong>希腊字母就是从它求导得来的</strong>
+        (下一章的主角)。
+      </p>
+
+      <div class="formula">
+        <div class="formula__body">看涨:C = S·N(d₁) − K·e<sup>−rT</sup>·N(d₂)
+看跌:P = K·e<sup>−rT</sup>·N(−d₂) − S·N(−d₁)
+
+其中
+d₁ = [ ln(S/K) + (r + σ²/2)·T ] / (σ·√T)
+d₂ = d₁ − σ·√T</div>
+        <div class="formula__note">
+          <span class="var">N(·)</span> 是标准正态分布的累积概率,可以理解为"某个结果发生的概率"。
+          式子里的每一项都在做同一件事:<strong>把"未来的预期收益"乘以"它发生的概率",再折算成今天的钱</strong>。
+        </div>
+      </div>
+
+      <h3>公式在说什么(去掉数学)</h3>
+      <ul>
+        <li><span class="mono">N(d₂)</span> 大致可以读成"<strong>到期时期权是实值的概率</strong>"。</li>
+        <li><span class="mono">S·N(d₁)</span> 是"<strong>到期能拿到标的的期望价值</strong>",用今天的价格表示。</li>
+        <li><span class="mono">K·e<sup>−rT</sup></span> 是"<strong>行权价折现到今天</strong>"——因为你要等到到期才付这笔钱。</li>
+        <li>两者相减,就是"<strong>预期能拿到什么,减去预期要付出什么</strong>"。</li>
+      </ul>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">模型的边界(很重要)</span>
+        Black-Scholes 建立在一组理想假设上:价格连续波动、波动率恒定、可以无限做空、
+        无摩擦成本、收益服从对数正态分布。真实市场这些条件都不完全成立——
+        所以才会有<strong>波动率微笑</strong>、<strong>跳跃风险</strong>这些现象。
+        模型给的是"参考价",不是"真理"。<strong>它的最大价值在于提供了一套一致的比较基准</strong>,让我们能把市场价格反推成隐含波动率来横向比较。
+      </div>
+
+      <h2><span class="hnum">4</span>动手算:期权价格计算器</h2>
+
+      <p>
+        拖动滑块,实时看理论价怎么变。左边的"价格构成"条会告诉你,
+        <strong>你付的钱里有多少是内在价值,多少是时间价值</strong>。
+      </p>
+
+      <div class="panel">
+        <div class="panel__head">
+          <h3 class="panel__t">Black-Scholes 计算器</h3>
+          <p class="panel__hint">全部参数均可调整</p>
+        </div>
+
+        <div class="panel__body">
+          <div class="controls">
+            <div class="field">
+              <label>期权类型</label>
+              <div class="seg" id="typeSeg">
+                <button type="button" data-val="call" aria-pressed="true">看涨 Call</button>
+                <button type="button" data-val="put" aria-pressed="false">看跌 Put</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>标的现价 S <span class="field__val" data-for="pS">—</span></label>
+              <input type="range" id="pS" min="50" max="150" step="1" value="100">
+            </div>
+
+            <div class="field">
+              <label>行权价 K <span class="field__val" data-for="pK">—</span></label>
+              <input type="range" id="pK" min="50" max="150" step="1" value="100">
+            </div>
+
+            <div class="field">
+              <label>剩余时间 T <span class="field__val" data-for="pT">—</span></label>
+              <input type="range" id="pT" min="1" max="730" step="1" value="90">
+              <p class="field__hint">单位:天。拖到 1 天看时间价值如何消失</p>
+            </div>
+
+            <div class="field">
+              <label>波动率 σ <span class="field__val" data-for="pV">—</span></label>
+              <input type="range" id="pV" min="5" max="150" step="1" value="30">
+            </div>
+
+            <div class="field">
+              <label>无风险利率 r <span class="field__val" data-for="pR">—</span></label>
+              <input type="range" id="pR" min="0" max="100" step="1" value="2">
+              <p class="field__hint">单位:%。对比其他滑块,感受它有多不敏感</p>
+            </div>
+          </div>
+
+          <div>
+            <div class="bigreadout">
+              <span class="bigreadout__k">理论价</span>
+              <span class="bigreadout__v" id="pPrice">—</span>
+              <span class="bigreadout__u" id="pState">—</span>
+            </div>
+
+            <h4 style="margin:20px 0 10px">价格构成</h4>
+            <div id="barIntrinsic" style="height:34px;border-radius:9px;overflow:hidden;display:flex;border:1px solid var(--line);background:var(--bg-2)">
+              <div id="segInt" style="width:0%;background:var(--accent);transition:width .18s"></div>
+              <div id="segTime" style="width:0%;background:var(--gold);transition:width .18s"></div>
+            </div>
+            <div class="legend" style="border-top:0;margin-top:8px;padding-top:0">
+              <span><i style="background:var(--accent)"></i>内在价值 <b class="mono" id="vInt">—</b></span>
+              <span><i style="background:var(--gold)"></i>时间价值 <b class="mono" id="vTime">—</b></span>
+            </div>
+
+            <div class="readout mt">
+              <div class="readout__item">
+                <span class="readout__k">Delta</span>
+                <div class="readout__v" id="vDelta" style="font-size:16px">—</div>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">Gamma</span>
+                <div class="readout__v" id="vGamma" style="font-size:16px">—</div>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">Theta/天</span>
+                <div class="readout__v" id="vTheta" style="font-size:16px">—</div>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">Vega</span>
+                <div class="readout__v" id="vVega" style="font-size:16px">—</div>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">实值概率</span>
+                <div class="readout__v" id="vProb" style="font-size:16px">—</div>
+              </div>
+            </div>
+
+            <div class="chartbox mt">
+              <canvas id="priceCurve" height="300" role="img" aria-label="期权价格随标的价格变化的曲线"></canvas>
+            </div>
+            <div class="legend">
+              <span><i style="background:var(--profit)"></i>到期价值(内在价值)</span>
+              <span><i style="background:var(--accent)"></i>当前理论价</span>
+              <span><i style="background:var(--gold)"></i>两者之差 = 时间价值</span>
+            </div>
+            <p class="small muted" style="margin:10px 0 0">
+              金色竖线标出你设定的标的现价。曲线与折线之间的<strong>垂直距离</strong>,就是你正在为时间付出的钱。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout--tip mt">
+        <span class="callout__t">建议依次试这几组</span>
+        ① 只把 σ 从 30% 拉到 100%:价格涨了多少?——这就是<a href="greeks.html#vega">波动率风险</a>。<br>
+        ② 只把 T 从 90 天拉到 1 天:价格还剩多少?——这就是<a href="greeks.html#theta">时间衰减</a>。<br>
+        ③ 把 K 从 100 调到 130:期权变成深度虚值,价格几乎只剩时间价值,而时间价值也在快速缩水。<br>
+        ④ 只把 r 从 2% 拉到 10%:价格几乎不动——说明对短期期权而言,利率是最不重要的那个变量。
+      </div>
+
+      <h2><span class="hnum">5</span>时间的形状:一条不断下滑的曲线</h2>
+
+      <p>
+        时间价值不是匀速消耗的,而是<strong>越接近到期,掉得越快</strong>。
+        下图是同一只标的(S = 100)下,实值、平值、虚值三张看涨期权的价格随剩余时间的变化:
+      </p>
+
+      <div class="panel">
+        <div class="panel__head">
+          <h3 class="panel__t">时间价值衰减曲线</h3>
+          <p class="panel__hint">横轴 = 剩余天数;纵轴 = 期权理论价</p>
+        </div>
+        <div class="chartbox">
+          <canvas id="decayChart" height="330" role="img" aria-label="期权价格随剩余时间衰减的曲线"></canvas>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--profit)"></i>实值 K=90</span>
+          <span><i style="background:var(--accent)"></i>平值 K=100</span>
+          <span><i style="background:var(--loss)"></i>虚值 K=110</span>
+        </div>
+        <p class="small muted" style="margin:12px 0 0">
+          三条曲线的共同特点:<strong>最右端(时间最多)最高,向左接近到期时急剧下坠</strong>。
+          而且注意——<strong>平值期权的时间价值最多</strong>,因为它"变实值"和"变虚值"的可能性都最大,
+          不确定性最高。深度实值和深度虚值的时间价值都更少。
+        </p>
+      </div>
+
+      <div class="callout callout--key">
+        <span class="callout__t">这张图对买卖双方的意义完全不同</span>
+        对<strong>买方</strong>,这条曲线是一条"倒计时"——什么都不做,价值每天都在蒸发。<br>
+        对<strong>卖方</strong>,它是收入来源——只要标的别乱动,每天都在把时间价值收进口袋。<br>
+        这就是为什么说"<strong>Theta 是买方的敌人、卖方的朋友</strong>"。
+      </div>
+
+      <h2><span class="hnum">6</span>唯一看不见的输入:波动率</h2>
+
+      <p>
+        五个因素里,S、K、T、r 都是<strong>可以观测</strong>的:股价你看得到,行权价写在合约里,
+        到期日写在合约里,利率也能查到。
+      </p>
+
+      <p>
+        只有 <span class="var">σ</span>——<strong>波动率</strong>——是一个<strong>对未来的预测</strong>,
+        没人知道确切值。这带来一个漂亮的推论:
+      </p>
+
+      <div class="callout callout--key">
+        <span class="callout__t">把公式倒过来用</span>
+        既然其他四个变量都已知,而市场价格是公开的,那我们就可以<strong>反解出市场对波动率的预期</strong>。
+        这个反解出来的数字,叫<strong>隐含波动率(Implied Volatility, IV)</strong>。
+        它代表"<strong>整个市场用真金白银投票,认为未来会有多动荡</strong>"。
+      </div>
+
+      <div class="grid grid--2 mt">
+        <div class="card">
+          <h3 class="card__title">历史波动率 <span class="muted small">Historical Volatility</span></h3>
+          <p class="small muted" style="margin:0">
+            用过去一段时间的实际价格波动<strong>算出来</strong>的。是"已经发生的事",客观、唯一。
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="card__title">隐含波动率 <span class="muted small">Implied Volatility</span></h3>
+          <p class="small muted" style="margin:0">
+            从期权市场价格<strong>反推出来</strong>的。是"市场预期的事",会随情绪剧烈变化,
+            同一时刻不同行权价还能不一样。
+          </p>
+        </div>
+      </div>
+
+      <p class="mt">
+        比较两者高低,是期权交易中最常见的判断框架之一:
+      </p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>情形</th><th>含义</th><th>常见做法(仅作概念说明)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="nowrap"><strong>IV 明显高于 HV</strong></td>
+              <td>期权"贵",市场在为一个可能不会发生的大波动付钱</td>
+              <td>倾向于<strong>卖出</strong>波动率(收权利金)</td>
+            </tr>
+            <tr>
+              <td class="nowrap"><strong>IV 明显低于 HV</strong></td>
+              <td>期权"便宜",市场低估了未来动荡</td>
+              <td>倾向于<strong>买入</strong>波动率(付权利金)</td>
+            </tr>
+            <tr>
+              <td class="nowrap"><strong>事件前 IV 抬升</strong></td>
+              <td>财报、议息、重大公告前,不确定性预期升温</td>
+              <td>注意事件后的 <strong>IV 崩塌</strong>风险</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--warn mt">
+        <span class="callout__t">IV 崩塌(IV Crush):方向对了也可能亏钱</span>
+        假设财报前一天,某股 IV 高达 80%,你买入看涨期权花了 8 元。
+        财报超预期,股价涨了 3%——但因为不确定性消失,IV 瞬间掉到 30%,
+        你的期权可能只值 5 元。<strong>你方向看对了,却亏了 37%。</strong>
+        这是期权新手最常踩、也最难理解的坑。原因是期权价格里包含的那部分"不确定性溢价"被抽走了。
+        详见第 <a href="risk.html">07 章</a>。
+      </div>
+
+      <h2><span class="hnum">7</span>小结</h2>
+
+      <div class="callout callout--key">
+        <span class="callout__t">读完这章你应该能回答</span>
+        <ul style="margin:8px 0 0;padding-left:1.2em">
+          <li>权利金可以拆成哪两块?为什么到期时只剩内在价值?</li>
+          <li>五个影响因素分别往哪个方向推价格?哪两个会让看涨看跌同时涨?</li>
+          <li>为什么说 Black-Scholes 给的是"参考价"而不是"真理"?</li>
+          <li>隐含波动率是怎么来的?它和历史波动率有什么本质区别?</li>
+          <li>为什么"方向看对了还可能亏钱"?</li>
+        </ul>
+      </div>
+
+      <p>
+        这一章我们反复提到 Delta、Theta、Vega 这些名字。它们其实是
+        <strong>把"价格对各个因素有多敏感"量化出来的五个数字</strong>,也是交易软件里真正用来管理风险的工具。
+        下一章专门讲它们。
+      </p>
+
+      <p class="mt2">
+        <a class="btn" href="greeks.html" style="display:inline-block">继续读第 05 章 · 希腊字母 →</a>
+      </p>
+
+      <div class="chaptercta">
+        <div class="chaptercta__txt">
+          <span class="chaptercta__t">▶ 想动手试一遍?</span>
+          去<strong>模拟交易台</strong>,用一支美股标的走完整流程:
+          选到期 → 读期权链 → 下单 → 推动行情 → 平仓,每一步都有对应的知识点讲解,还能看到自己的盈亏是怎么来的。
+        </div>
+        <a class="btn" href="simulator.html">进入模拟交易 →</a>
+      </div>
+
+    </article>
+
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var st = { type: 'call', S: 100, K: 100, days: 90, vol: 30, rate: 2 };
+
+  function bsParams() {
+    return {
+      type: st.type, S: st.S, K: st.K,
+      T: st.days / 365,
+      sigma: st.vol / 100,
+      r: st.rate / 100
+    };
+  }
+
+  var priceCanvas = document.getElementById('priceCurve');
+  var decayCanvas = document.getElementById('decayChart');
+
+  /* ---------- 主计算器 ---------- */
+  function renderCalc() {
+    var res = BS.price(bsParams());
+    var price = res.price;
+
+    document.getElementById('pPrice').textContent = price.toFixed(3);
+
+    // 实值 / 平值 / 虚值状态
+    var diff = st.S - st.K;
+    var stateText;
+    if (Math.abs(diff) < 0.01) stateText = '平值 ATM';
+    else if (st.type === 'call') stateText = diff > 0 ? '实值 ITM' : '虚值 OTM';
+    else stateText = diff < 0 ? '实值 ITM' : '虚值 OTM';
+    document.getElementById('pState').textContent = stateText;
+
+    // 价格构成条
+    var total = Math.max(res.intrinsic + res.timeValue, 1e-9);
+    var intPct = res.intrinsic / total * 100;
+    document.getElementById('segInt').style.width = intPct + '%';
+    document.getElementById('segTime').style.width = (100 - intPct) + '%';
+    document.getElementById('vInt').textContent = res.intrinsic.toFixed(3);
+    document.getElementById('vTime').textContent = res.timeValue.toFixed(3);
+
+    // 希腊字母
+    document.getElementById('vDelta').textContent = res.delta.toFixed(3);
+    document.getElementById('vGamma').textContent = res.gamma.toFixed(4);
+    var th = BS.thetaPerDay(res.theta);
+    var thEl = document.getElementById('vTheta');
+    thEl.textContent = th.toFixed(4);
+    thEl.style.color = th < 0 ? 'var(--loss)' : 'var(--profit)';
+    document.getElementById('vVega').textContent = BS.vegaPerPct(res.vega).toFixed(3);
+    document.getElementById('vProb').textContent = (res.probITM * 100).toFixed(1) + '%';
+
+    // 价格曲线
+    if (priceCanvas) {
+      var lo = Math.max(1, Math.round(st.K * 0.5));
+      var hi = Math.round(st.K * 1.6);
+      var expiry = [], current = [], gap = [];
+      var N = 140;
+      for (var i = 0; i <= N; i++) {
+        var S = lo + (hi - lo) * i / N;
+        var iv = st.type === 'call' ? Math.max(S - st.K, 0) : Math.max(st.K - S, 0);
+        var cv = BS.price({
+          type: st.type, S: S, K: st.K, T: st.days / 365,
+          sigma: st.vol / 100, r: st.rate / 100
+        }).price;
+        expiry.push([S, iv]);
+        current.push([S, cv]);
+        // 时间价值用"竖线"表示:在现价处画一段
+        if (Math.abs(S - st.S) < (hi - lo) / N * 0.6) gap.push([S, iv], [S, cv]);
+      }
+
+      Charts.bind(priceCanvas, function () {
+        Charts.lines(priceCanvas, {
+          height: 300,
+          series: [
+            { name: '到期价值', color: Charts.PALETTE.profit, points: expiry, width: 2.4, dash: [6, 4] },
+            { name: '当前理论价', color: Charts.PALETTE.accent, points: current, width: 2.8,
+              fill: 'rgba(29,78,216,.07)', areaTo: 0 },
+            { name: '时间价值', color: Charts.PALETTE.gold, points: gap, width: 3.4 }
+          ],
+          xLabel: '标的价格', yLabel: '期权价格',
+          vlines: [
+            { v: st.K, label: 'K=' + st.K.toFixed(0), color: Charts.PALETTE.ink4 },
+            { v: st.S, label: '现价', color: Charts.PALETTE.gold, dash: [] }
+          ],
+          includeZero: true,
+          yLo: 0
+        });
+      });
+    }
+  }
+
+  /* ---------- 时间衰减图 ---------- */
+  function renderDecay() {
+    if (!decayCanvas) return;
+
+    function seriesFor(K, color) {
+      var pts = [];
+      for (var d = 0; d <= 180; d++) {
+        var v = BS.price({
+          type: 'call', S: 100, K: K, T: d / 365,
+          sigma: 0.30, r: 0.02
+        }).price;
+        pts.push([d, v]);
+      }
+      return { name: 'K=' + K, color: color, points: pts, width: 2.6 };
+    }
+
+    Charts.bind(decayCanvas, function () {
+      Charts.lines(decayCanvas, {
+        height: 330,
+        series: [
+          seriesFor(90, Charts.PALETTE.profit),
+          seriesFor(100, Charts.PALETTE.accent),
+          seriesFor(110, Charts.PALETTE.loss)
+        ],
+        xLabel: '剩余天数', yLabel: '期权理论价',
+        xLo: 0, xHi: 180, yLo: 0,
+        xFmt: function (v) { return v.toFixed(0) + '天'; },
+        yFmt: function (v) { return v.toFixed(1); },
+        vlines: [{ v: 30, label: '30 天', color: Charts.PALETTE.ink4 }]
+      });
+    });
+  }
+
+  /* ---------- 绑定 ---------- */
+  Site.bindSeg('typeSeg', function (v) { st.type = v; renderCalc(); }, 'call');
+
+  Site.bindSlider('pS', function (v) { st.S = v; renderCalc(); }, function (v) { return v.toFixed(0); });
+  Site.bindSlider('pK', function (v) { st.K = v; renderCalc(); }, function (v) { return v.toFixed(0); });
+  Site.bindSlider('pT', function (v) { st.days = v; renderCalc(); }, function (v) { return v.toFixed(0) + ' 天'; });
+  Site.bindSlider('pV', function (v) { st.vol = v; renderCalc(); }, function (v) { return v.toFixed(0) + '%'; });
+  Site.bindSlider('pR', function (v) { st.rate = v; renderCalc(); }, function (v) { return v.toFixed(0) + '%'; });
+
+  renderCalc();
+  renderDecay();
+})();
+</script>
+</body>
+</html>

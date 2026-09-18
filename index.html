@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>期权百科 — 从零讲明白股票市场里的期权</title>
+<meta name="description" content="用生活化的类比、可动手拖动的盈亏图和定价计算器,把期权是什么、怎么定价、有什么风险一次讲明白。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <!-- ============ 首屏 ============ -->
+  <section style="padding:54px 0 10px">
+    <p class="eyebrow">股票市场 · 衍生品入门</p>
+    <h1>期权,是给未来买的一份<br>「反悔权」</h1>
+    <p class="lede" style="font-size:20px">
+      你付一笔小钱,换来一个<strong>权利</strong>:在约定的日子,按约定的价格,
+      买入或卖出某只股票——<em>到期时你不想做,就可以不做</em>,损失最多是那笔小钱。
+      这笔「小钱」叫<strong>权利金</strong>,它就是期权的价格。
+    </p>
+
+    <div class="hero-cta">
+      <a class="btn btn--lg" href="simulator.html">▶ 直接进模拟交易实战</a>
+      <a class="btn btn--ghost btn--lg" href="basics.html">从第 01 章开始读</a>
+      <span class="small muted">零基础也能跟;模拟盘不产生真实委托</span>
+    </div>
+
+    <div class="grid grid--4" style="margin-top:34px">
+      <div class="card">
+        <span class="readout__k">买方最大亏损</span>
+        <div class="readout__v" style="color:var(--profit)">权利金</div>
+        <p class="small muted" style="margin:6px 0 0">封顶、可预知,不会追加</p>
+      </div>
+      <div class="card">
+        <span class="readout__k">买方潜在盈利</span>
+        <div class="readout__v" style="color:var(--profit)">理论无上限</div>
+        <p class="small muted" style="margin:6px 0 0">买看涨期权时</p>
+      </div>
+      <div class="card">
+        <span class="readout__k">卖方最大盈利</span>
+        <div class="readout__v" style="color:var(--loss)">权利金</div>
+        <p class="small muted" style="margin:6px 0 0">收到钱,但承担义务</p>
+      </div>
+      <div class="card">
+        <span class="readout__k">期权会过期</span>
+        <div class="readout__v" style="color:var(--warn)">有到期日</div>
+        <p class="small muted" style="margin:6px 0 0">不像股票可以一直拿着</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 实战入口横幅 ============ -->
+  <section style="margin-top:44px">
+    <div class="ctabanner">
+      <div class="ctabanner__txt">
+        <p class="ctabanner__t">不用先学完,现在就能上手试一笔</p>
+        <p class="ctabanner__d">
+          <strong>模拟交易台</strong>用一支美股标的,带你走完整的真实下单流程:
+          看标的 → 选到期 → 读期权链 → 下单 → 推动行情 → 平仓。
+          8 个步骤,每点一次按钮就讲清一个知识点,并把你赚或亏的钱拆成
+          <strong>方向、时间、波动率</strong>三份。全程模拟盘,不会产生任何真实委托。
+        </p>
+      </div>
+      <a class="btn btn--lg" href="simulator.html">进入模拟交易 →</a>
+    </div>
+  </section>
+
+  <!-- ============ 一张图看懂 ============ -->
+  <section style="margin-top:48px">
+    <div class="panel">
+      <div class="panel__head">
+        <div>
+          <h2 class="panel__t" style="border:0;padding:0;margin:0;font-size:20px">先看一眼:买一张看涨期权,到期会怎样?</h2>
+          <p class="panel__hint" style="margin-top:6px">这是整站最核心的一张图。绿色区域=赚钱,红色区域=亏钱,曲线向上拐点就在行权价。</p>
+        </div>
+      </div>
+      <div class="chartbox">
+        <canvas id="heroChart" height="360" role="img" aria-label="买入看涨期权的到期盈亏图"></canvas>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--profit)"></i>盈利</span>
+        <span><i style="background:var(--loss)"></i>亏损</span>
+        <span><i style="background:var(--ink4)"></i>行权价 K</span>
+        <span><i style="background:var(--ink)"></i>标的现价</span>
+      </div>
+      <p class="small muted" style="margin:14px 0 0">
+        例子:某股票现价 <span class="mono">100</span> 元,你花 <span class="mono">5</span> 元买了一张行权价
+        <span class="mono">100</span> 元的看涨期权。股价涨到 <span class="mono">105</span> 元时你刚好回本,
+        再往上每一元都是利润;如果股价跌到 100 元以下,你选择<strong>不行权</strong>,亏掉 5 元。
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 学习路径 ============ -->
+  <section style="margin-top:56px">
+    <p class="eyebrow">学习路径</p>
+    <h2 style="font-size:27px;margin:0 0 8px;letter-spacing:-.015em">三步走,从「听不懂」到「能上手」</h2>
+    <p class="muted" style="margin:0 0 26px;max-width:64ch">
+      建议按顺序往下读。每个知识点都配了可以拖动的图,先动手玩一遍,再回头读文字,会快很多。
+    </p>
+
+    <div class="grid grid--3">
+      <div class="card card--flat">
+        <span class="cardlink__num">第一阶段 · 看懂</span>
+        <h3 style="font-size:18px;margin:0 0 8px">建立直觉</h3>
+        <ol class="small muted" style="padding-left:1.2em;margin:0;line-height:2">
+          <li><a href="basics.html">期权是什么</a></li>
+          <li><a href="contract.html">一张合约的五个要素</a></li>
+          <li><a href="payoff.html">到期能赚多少</a></li>
+        </ol>
+      </div>
+      <div class="card card--flat">
+        <span class="cardlink__num">第二阶段 · 算清</span>
+        <h3 style="font-size:18px;margin:0 0 8px">知道价格从哪来</h3>
+        <ol class="small muted" style="padding-left:1.2em;margin:0;line-height:2">
+          <li><a href="pricing.html">权利金 = 内在价值 + 时间价值</a></li>
+          <li><a href="greeks.html">希腊字母:风险的五个刻度</a></li>
+          <li><a href="greeks.html#theta">时间每天都在吃掉价值</a></li>
+        </ol>
+      </div>
+      <div class="card card--flat">
+        <span class="cardlink__num">第三阶段 · 用起来</span>
+        <h3 style="font-size:18px;margin:0 0 8px">组合与风控</h3>
+        <ol class="small muted" style="padding-left:1.2em;margin:0;line-height:2">
+          <li><a href="strategies.html">把期权拼成策略</a></li>
+          <li><a href="risk.html">保证金与爆仓</a></li>
+          <li><a href="market.html">A 股与美股实务</a></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 全站目录 ============ -->
+  <section style="margin-top:56px">
+    <p class="eyebrow">全站目录</p>
+    <h2 style="font-size:27px;margin:0 0 26px;letter-spacing:-.015em">十章内容</h2>
+
+    <div class="grid grid--2">
+      <a class="card cardlink" href="basics.html">
+        <span class="cardlink__num">01</span>
+        <h3 class="cardlink__t">期权是什么</h3>
+        <p class="cardlink__d">用定金、保险、购房意向金三个类比建立直觉;认清买方与卖方的权利与义务;看懂四大基本头寸。</p>
+      </a>
+      <a class="card cardlink" href="contract.html">
+        <span class="cardlink__num">02</span>
+        <h3 class="cardlink__t">一张合约的五个要素</h3>
+        <p class="cardlink__d">标的、行权价、到期日、权利金、合约乘数。什么算实值/平值/虚值,欧式与美式的区别。</p>
+      </a>
+      <a class="card cardlink" href="payoff.html">
+        <span class="cardlink__num">03</span>
+        <h3 class="cardlink__t">到期能赚多少 <span class="tag tag--key">可交互</span></h3>
+        <p class="cardlink__d">拖动行权价与权利金,实时看盈亏曲线怎么变。对比买股票与买期权的杠杆差异,算出平衡点。</p>
+      </a>
+      <a class="card cardlink" href="pricing.html">
+        <span class="cardlink__num">04</span>
+        <h3 class="cardlink__t">权利金从哪来 <span class="tag tag--key">可交互</span></h3>
+        <p class="cardlink__d">拆开内在价值与时间价值,用 Black-Scholes 计算器亲手验证五个因素各自的影响方向。</p>
+      </a>
+      <a class="card cardlink" href="greeks.html">
+        <span class="cardlink__num">05</span>
+        <h3 class="cardlink__t">希腊字母 <span class="tag tag--key">可交互</span></h3>
+        <p class="cardlink__d">Delta、Gamma、Theta、Vega、Rho 分别衡量什么风险,为什么 Theta 是买方的敌人、卖方的朋友。</p>
+      </a>
+      <a class="card cardlink" href="strategies.html">
+        <span class="cardlink__num">06</span>
+        <h3 class="cardlink__t">组合策略 <span class="tag tag--key">可交互</span></h3>
+        <p class="cardlink__d">备兑、保护性看跌、牛市/熊市价差、跨式、铁鹰。用策略构建器自己拼一个,立刻看到盈亏形状。</p>
+      </a>
+      <a class="card cardlink" href="risk.html">
+        <span class="cardlink__num">07</span>
+        <h3 class="cardlink__t">风险与保证金</h3>
+        <p class="cardlink__d">卖方为什么会接到追保电话、什么时候会被强制平仓、到期日前后要特别小心什么。</p>
+      </a>
+      <a class="card cardlink" href="market.html">
+        <span class="cardlink__num">08</span>
+        <h3 class="cardlink__t">市场与实务</h3>
+        <p class="cardlink__d">A 股有哪些期权可以交易、门槛与规则;美股期权的合约规格;行权与交割到底怎么发生。</p>
+      </a>
+      <a class="card cardlink" href="quiz.html">
+        <span class="cardlink__num">09</span>
+        <h3 class="cardlink__t">自测 20 题</h3>
+        <p class="cardlink__d">做完这 20 题基本可以判断自己有没有真懂。每题都有解析,答错会告诉你错在哪。</p>
+      </a>
+      <a class="card cardlink" href="glossary.html">
+        <span class="cardlink__num">10</span>
+        <h3 class="cardlink__t">中英对照术语表</h3>
+        <p class="cardlink__d">看研报、用交易软件时最常撞见的术语,一条条用大白话解释清楚。</p>
+      </a>
+      <a class="card cardlink" href="simulator.html" style="border-color:var(--accent);background:var(--accent-soft)">
+        <span class="cardlink__num">实战</span>
+        <h3 class="cardlink__t">模拟交易:走一遍完整流程 <span class="tag tag--key">推荐先玩</span></h3>
+        <p class="cardlink__d">美股期权从看盘到平仓的 8 步实操演示。边操作边讲解,并实时拆解你的盈亏来源。</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ 三个常见误解 ============ -->
+  <section style="margin-top:56px">
+    <p class="eyebrow">先说清楚</p>
+    <h2 style="font-size:27px;margin:0 0 22px;letter-spacing:-.015em">三个最常见的误解</h2>
+    <div class="grid grid--3">
+      <div class="callout callout--warn">
+        <span class="callout__t">误解一:期权就是赌博</span>
+        期权有明确的定价逻辑(见<a href="pricing.html">第 04 章</a>),它的价格由标的波动率、剩余时间、利率共同决定,
+        不是凭空开大小。真正接近赌博的是<strong>不管理仓位、满仓买深度虚值</strong>的用法——那是用法的问题,不是工具的。
+      </div>
+      <div class="callout callout--warn">
+        <span class="callout__t">误解二:买便宜的虚值期权更容易赚</span>
+        虚值期权便宜,是因为它<strong>到期归零的概率更高</strong>。便宜不等于划算,关键看隐含波动率是否被高估。
+        详见<a href="greeks.html#theta">时间价值衰减</a>。
+      </div>
+      <div class="callout callout--warn">
+        <span class="callout__t">误解三:卖方稳赚权利金</span>
+        卖方胜率高,但<strong>单次亏损可能远超收到的权利金</strong>。裸卖看涨理论亏损无上限,
+        且需要缴纳保证金、可能被强制平仓。详见<a href="risk.html">第 07 章</a>。
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 免责声明 ============ -->
+  <section style="margin-top:52px">
+    <div class="callout callout--key">
+      <span class="callout__t">本站的性质</span>
+      这是一个<strong>知识科普站点</strong>,目的是把期权的概念、定价逻辑与风险讲清楚。
+      站内所有数值、图表均为教学用示例,<strong>不构成任何投资建议</strong>。
+      期权是带杠杆的衍生品,买方可能损失全部权利金,卖方可能面临远超预期的亏损。
+      真实交易前请阅读交易所规则、完成相应投资者适当性评估,并对自己的决策负责。
+    </div>
+  </section>
+
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  var canvas = document.getElementById('heroChart');
+  if (!canvas || !window.Charts) return;
+
+  ChartRender();
+  Charts.bind(canvas, ChartRender);
+
+  function ChartRender() {
+    Charts.payoff(canvas, {
+      legs: [{ kind: 'call', dir: 1, K: 100, premium: 5, qty: 1 }],
+      spot: 100,
+      lo: 70,
+      hi: 135,
+      height: 360,
+      showNow: false
+    });
+  }
+})();
+</script>
+</body>
+</html>

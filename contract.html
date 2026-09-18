@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一张合约的五个要素 — 期权百科</title>
+<meta name="description" content="把期权当成一张合同来读:标的、行权价、到期日、权利金、合约乘数五个要素分别是什么意思,实值平值虚值怎么分,欧式与美式差在哪。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">第 02 章 · 读懂合约</p>
+        <h1>一张合约的五个要素</h1>
+        <p class="lede">期权就是一张写清了条件的小合同,读懂它只需要抓住五个要素:买卖什么、按什么价格、到哪天为止、这份权利卖多少钱、一张管多少数量。</p>
+      </div>
+
+      <h2 id="elements"><span class="hnum">1</span>开篇:把期权当成一张「合同」来读</h2>
+
+      <p>期权(option)本身没有价值,它更像一张<strong>合同</strong>。合同上必然写清六件事,缺一样这份合同就不成立:</p>
+
+      <ul>
+        <li><strong>标的</strong>:这份合同管的是哪一样东西(某只股票、某只 ETF、某个指数)。</li>
+        <li><strong>类型</strong>:你买的是<em>认购</em>(看涨,涨了才用得上)还是<em>认沽</em>(看跌,跌了才用得上)。</li>
+        <li><strong>行权价</strong>:合同里锁定的那个成交价格。</li>
+        <li><strong>到期日</strong>:这张合同的有效截止日期。</li>
+        <li><strong>合约单位</strong>:一张合同管多少份标的。</li>
+        <li><strong>权利金</strong>:这张合同今天卖多少钱,也就是你为权利付的价款。</li>
+      </ul>
+
+      <p>下面这张表是把上面六件事填满之后的样子。请把它当成「合同的第一页」,后面七节都在逐格解释它。<strong>以下全部数字都是教学用的虚构示例</strong>:</p>
+
+      <div class="tablewrap">
+        <table>
+          <caption class="sr">一张虚构认购期权的合约说明书</caption>
+          <thead>
+            <tr><th>合同要素</th><th>本合同填写的内容</th><th>大白话</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>合约标的</td>
+              <td>某 ETF(交易所交易基金,一篮子股票打包成的可交易份额),现价 <span class="mono">2.500</span> 元</td>
+              <td>管的是哪样东西</td>
+            </tr>
+            <tr>
+              <td>合约类型</td>
+              <td>认购期权(Call,看涨)</td>
+              <td>涨了我才用得上</td>
+            </tr>
+            <tr>
+              <td>行权价 <span class="mono">K</span></td>
+              <td><span class="mono">2.500</span> 元</td>
+              <td>锁定的买入价</td>
+            </tr>
+            <tr>
+              <td>到期日</td>
+              <td>6 月第 4 个星期三</td>
+              <td>权利的有效截止日</td>
+            </tr>
+            <tr>
+              <td>合约单位</td>
+              <td><span class="mono">10000</span> 份/张</td>
+              <td>一张管多少份</td>
+            </tr>
+            <tr>
+              <td>权利金报价</td>
+              <td><span class="mono">0.060</span> 元/份</td>
+              <td>权利的单价</td>
+            </tr>
+            <tr>
+              <td>交割方式</td>
+              <td>实物交割(行权时是真的交钱换份额)</td>
+              <td>最后怎么收场</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--case">
+        <span class="callout__t">先算一次钱,建立手感</span>
+        权利金报价 <span class="mono">0.060</span> 元是<strong>每一份</strong>的价格,一张合同管 <span class="mono">10000</span> 份,所以买一张要付
+        <span class="mono">0.060 × 10000 = 600</span> 元。付出的这 600 元,就是你在这笔交易里<strong>可能损失的全部上限</strong>。
+        如果到期时 ETF 涨到 <span class="mono">2.700</span> 元,你行使权利,按 2.500 元买入、立刻按 2.700 元卖出,差价
+        <span class="mono">0.200 × 10000 = 2000</span> 元,扣掉 600 元成本,净赚 <span class="mono">1400</span> 元
+        (现实中还要考虑手续费与买卖价差,这里先忽略)。若 ETF 最后没涨过 2.500 元,你就放弃行权,亏掉那 600 元。
+      </div>
+
+      <h2><span class="hnum">2</span>要素一:标的资产(Underlying)</h2>
+
+      <p><strong>标的资产</strong>(underlying asset,常简称「标的」)是这份合同真正管的那样东西。期权自己不会涨跌,它的价值<strong>完全寄生在标的身上</strong>:标的涨,认购期权跟着值钱;标的跌,认沽期权跟着值钱。这就是「<strong>衍生品</strong>(derivative)」三个字的含义——它的价值是从别的东西身上「衍生」出来的。</p>
+
+      <p>常见的标的可以分成三类:</p>
+
+      <div class="grid grid--3">
+        <div class="card card--flat">
+          <h3 style="font-size:16.5px">单只股票</h3>
+          <p class="small muted" style="margin:0">例如某家上市公司的股票。只跟这一家公司有关,公司出事它就出事。</p>
+        </div>
+        <div class="card card--flat">
+          <h3 style="font-size:16.5px">ETF(交易所交易基金)</h3>
+          <p class="small muted" style="margin:0">一篮子股票打包成的份额,相当于同时持有几十上百家公司,单家公司的毛病被摊平。</p>
+        </div>
+        <div class="card card--flat">
+          <h3 style="font-size:16.5px">指数</h3>
+          <p class="small muted" style="margin:0">只公布一个点位数字,本身不是可以拿着的东西,所以这类期权通常用现金结算差价,而不是交割实物。</p>
+        </div>
+      </div>
+
+      <p>生活化的类比:期权像<strong>房产的认购意向书</strong>。意向书本身不是房子,它值多少钱,取决于它锁定的那套房子现在市价值多少。房子所在的小区涨价了,意向书才值钱;房子根本卖不出去,意向书就是一张废纸。所以看期权之前,先看它管的是哪样东西。</p>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">同一个标的,可以有几百张合约</span>
+        同一个标的(比如同一只 ETF)下面会挂出很多张不同的合约:不同的到期月、不同的行权价、认购与认沽都有。
+        一个标的对应几百张合约是常态。<strong>标的只有一个,合约有几百张</strong>——初学者最容易在这里犯晕。
+      </div>
+
+      <h2><span class="hnum">3</span>要素二:行权价(Strike Price,K)</h2>
+
+      <p><strong>行权价</strong>(strike price,习惯用字母 <span class="var">K</span> 表示)是合同里<strong>事先约定的成交价格</strong>。你买了行权价 2.500 元的认购期权,到期时不管市价涨到多高,你都有权按 2.500 元买入。这就是「锁价」的意义。</p>
+
+      <p>最贴切的类比是<strong>优惠券</strong>:一张「凭券 2.500 元换购一件」的券,如果店里标价已经涨到 2.700 元,这张券就很有用;如果标价跌到 2.300 元,没人会用券,直接买更便宜。</p>
+
+      <h3>行权价是合同里的「死数」</h3>
+
+      <p>最重要的性质:<strong>行权价一旦写进合同,就再也不变</strong>,直到这张合约到期。市价每分每秒在跳,<span class="var">K</span> 一动不动。变的是「市价与 <span class="var">K</span> 的关系」,而这个关系决定了这张期权值不值钱、值多少钱。</p>
+
+      <h3>行权价越多,合约越密</h3>
+
+      <p>交易所会在现价上下,按一个固定的价格间隔(比如每隔 0.05 元、0.10 元)挂出一整排行权价,像梯子的横档一样排开。</p>
+
+      <ul>
+        <li>行权价的间隔越小、档位越多,合约越「密」。想精准表达「我赌它涨到 2.600 附近」这种具体看法,可选的档位就越多。</li>
+        <li>不同市场的间隔规则、挂牌档位范围并不一样,而且会随规则调整——<strong>以交易所与券商最新规则为准</strong>,不要凭记忆下判断。</li>
+        <li>对实务的影响:行权价太偏的合约常常没人买卖,「想卖卖不掉、想买买不到」的麻烦叫流动性问题。</li>
+      </ul>
+
+      <h2><span class="hnum">4</span>要素三:到期日(Expiration Date)</h2>
+
+      <p><strong>到期日</strong>(expiration date)是这张合同的有效截止日期。这句话有两层意思,都得记住:</p>
+
+      <ol>
+        <li>过了这一天,合同<strong>作废</strong>,那张「优惠券」直接撕掉,不能再用。</li>
+        <li>更关键的是,权利不是「到期那一刻」才开始有用,而是<strong>在整个有效期内都有效</strong>(具体哪天能行权,要看是欧式还是美式,见<a href="#european-american">第 8 节</a>)。</li>
+      </ol>
+
+      <h3>为什么时间本身值钱</h3>
+
+      <p>拿标的现价 2.500 元、行权价 2.500 元的认购期权举例:现在这张合同<strong>立刻行权一分钱赚不到</strong>(按 2.500 买、市价也是 2.500)。那它为什么还卖 0.060 元?因为你买的是<strong>可能性</strong>——万一下个月 ETF 涨到 2.800 元呢。</p>
+
+      <p>剩下的时间越长,发生「万一」的机会越多,这份可能性就越贵;每过一天,可能性就少一点,价格里那部分「期待值」就少一点;到了到期日,「万一」已经没有时间发生,这部分价值<strong>必然归零</strong>。这就是股票可以「拿着等回本」,而期权<strong>拿着不动只会一天天变便宜</strong>的原因。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>市场</th><th>到期日的一般形式</th><th>记忆要点</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>美股个股期权</td>
+              <td>通常是<strong>到期月的第三个星期五</strong></td>
+              <td>俗称「三巫日」那个星期五,是这个月合约的集体到期日</td>
+            </tr>
+            <tr>
+              <td>A 股 ETF 期权</td>
+              <td>通常是<strong>到期月第四个星期三</strong></td>
+              <td>星期三,不是星期五,这一点和美国习惯不同</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">别背日期,去查公告</span>
+        上面说的是<strong>一般形式</strong>,遇到法定节假日、临时休市、交易所调整,实际日期会顺延或改变。
+        下单前请以<strong>交易所公告与券商软件里显示的日期为准</strong>,不要按「第三个星期五」自己推算。
+        差一天,可能就决定这张合约是废纸还是钱。
+      </div>
+
+      <h2><span class="hnum">5</span>要素四:权利金(Premium)</h2>
+
+      <p><strong>权利金</strong>(premium)就是期权的<strong>市场价格</strong>——买方为买到这份权利付的钱,也是卖方收到并留在手里的钱。它由买卖双方在交易所里撮合出来,随行情实时变动。</p>
+
+      <p>权利金可以拆成两块,这是全站最重要的一条分解式:</p>
+
+      <div class="formula">
+        <div class="formula__body">权利金 = 内在价值 + 时间价值</div>
+        <div class="formula__note">内在价值 = 现在立刻行权能赚到的钱(赚不到就是 0,不会为负)<br>时间价值 = 权利金里超出内在价值的部分,是对「未来还有机会」的付费</div>
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>组成部分</th><th>是什么</th><th>什么时候会变</th><th>到期时会怎样</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>内在价值<br><span class="small muted">intrinsic value</span></td>
+              <td>「现在就行权」能拿到的差价。认购看市价高出 <span class="var">K</span> 多少,认沽看市价低于 <span class="var">K</span> 多少</td>
+              <td>随标的价格实时变化</td>
+              <td>保留。标的涨到 2.700 元,认购的内在价值就是 0.200 元,一分不少</td>
+            </tr>
+            <tr>
+              <td>时间价值<br><span class="small muted">time value</span></td>
+              <td>为「以后可能更赚」额外付的钱,平值附近通常最贵</td>
+              <td>随剩余时间缩短而减少,越接近到期掉得越快</td>
+              <td><span class="neg">必然归零</span>。时间用完了,这一块就彻底没了</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>回到我们的例子:ETF 现价 <span class="mono">2.500</span> 元,行权价 <span class="mono">2.500</span> 元的认购期权报价 <span class="mono">0.060</span> 元。此刻立刻行权赚不到钱,所以<strong>内在价值 = 0</strong>,这 0.060 元<strong>全是时间价值</strong>。等它涨到 2.700 元那一天,内在价值变成 0.200 元,但时间价值已经掉到很薄;如果到期那天恰好停在 2.700 元,权利金就正好等于 0.200 元,(理论上)时间价值为 0。</p>
+
+      <p>还有个看似奇怪的现象值得先埋个伏笔:有时权利金比内在价值还低?这通常是因为标的价格、报价时点、买卖价差或流动性造成的错觉;正常情况下权利金不会低于内在价值,否则就成了「无风险白捡钱」,会被市场瞬间抹平。定价细节留到<a href="pricing.html">第 04 章</a>。</p>
+
+      <h2><span class="hnum">6</span>要素五:合约乘数 / 合约单位(Contract Multiplier)</h2>
+
+      <p><strong>合约单位</strong>(contract multiplier,也叫合约乘数)是<strong>一张合约管多少份标的</strong>。这是新手最容易忽略、也最容易算错钱的地方,值得单独占一节。</p>
+
+      <p>记住这条规则:<strong>报价是「每一份」的价格,付钱要乘以合约单位。</strong>你看盘面看到的 0.060 元不是「一张 6 分钱」,而是「一份 6 分钱」。</p>
+
+      <div class="grid grid--2">
+        <div class="card">
+          <span class="tag tag--key">A 股 ETF 期权常见规格</span>
+          <h3 style="font-size:17px">1 张 = 10000 份</h3>
+          <p class="small" style="margin:0">
+            报价 <span class="mono">0.060</span> 元/份 × <span class="mono">10000</span> 份
+            = <strong><span class="mono">600</span> 元/张</strong>
+          </p>
+          <p class="small muted" style="margin:6px 0 0">600 元,大约一顿饭的价钱,却是买下一整张合约的真实门槛。</p>
+        </div>
+        <div class="card">
+          <span class="tag tag--key">美股期权常见规格</span>
+          <h3 style="font-size:17px">1 张 = 100 股</h3>
+          <p class="small" style="margin:0">
+            报价 <span class="mono">5.00</span> 美元/股 × <span class="mono">100</span> 股
+            = <strong><span class="mono">500</span> 美元/张</strong>
+          </p>
+          <p class="small muted" style="margin:6px 0 0">标价看着便宜,乘上 100 之后才是账单金额。</p>
+        </div>
+      </div>
+
+      <h3>把它想成「整箱买」</h3>
+
+      <p>报价 0.060 元,就像超市标签上的「每瓶 0.06 元」;而合约单位 10000 份,等于规定<strong>只能整箱买,一箱 10000 瓶</strong>。标签价再小,结账也是 600 元。</p>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">算钱一定要乘乘数</span>
+        报价 0.060 元看着像「几乎不要钱」,一张就是 <span class="mono">600</span> 元;报价 0.500 元看着也还好,一张就是
+        <span class="mono">5000</span> 元。新手常见三种错:把 600 元当成 6 元;按「一手股票」的思维去买,结果吃了 10000 份的仓位;
+        卖期权时忘了义务也被放大 10000 倍。<strong>下单前先做一次乘法,再确认一遍金额栏。</strong>
+        不同标的、不同市场的合约单位并不相同,以交易所与券商软件显示为准。
+      </div>
+
+      <h2><span class="hnum">7</span>实值 / 平值 / 虚值(ITM / ATM / OTM)</h2>
+
+      <p>有了行权价和标的价格,就能给每张合约贴一个「状态标签」。三个词:</p>
+
+      <ul>
+        <li><strong>实值</strong>(in the money,ITM):<em>现在</em>就行权就能赚钱的状态。</li>
+        <li><strong>平值</strong>(at the money,ATM):标的价格与行权价几乎相等,行权刚好不赚不亏。</li>
+        <li><strong>虚值</strong>(out of the money,OTM):现在行权要亏钱,只能指望以后涨(或跌)回来。</li>
+      </ul>
+
+      <p>关键区别在于:<strong>实值一定有内在价值,平值的内在价值约等于 0,虚值的内在价值就是 0。</strong>但请立刻补上后半句——<em>虚值不等于没价值</em>,它还有时间价值,所以照样能卖钱。</p>
+
+      <p>下面这张表用行权价 <span class="var">K</span> = <span class="mono">2.500</span> 元的合约作例子,把三种状态一次看全:</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>期权类型</th><th>标的价格</th><th>状态</th><th>内在价值</th><th>为什么</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="3"><span class="tag tag--long">认购 Call</span><br><span class="small muted">有权按 <span class="mono">2.500</span> 买入</span></td>
+              <td class="num">2.700</td>
+              <td><span class="tag tag--key">实值 ITM</span></td>
+              <td class="num pos">0.200</td>
+              <td>按 2.500 买进、市价 2.700 卖出,每份赚 0.200</td>
+            </tr>
+            <tr>
+              <td class="num">2.500</td>
+              <td><span class="tag">平值 ATM</span></td>
+              <td class="num">0</td>
+              <td>买卖同一个价,行权不赚不亏</td>
+            </tr>
+            <tr>
+              <td class="num">2.300</td>
+              <td><span class="tag tag--warn">虚值 OTM</span></td>
+              <td class="num">0</td>
+              <td>市价 2.300 就能买到,谁会用 2.500 的行权价去买</td>
+            </tr>
+            <tr>
+              <td rowspan="3"><span class="tag tag--short">认沽 Put</span><br><span class="small muted">有权按 <span class="mono">2.500</span> 卖出</span></td>
+              <td class="num">2.300</td>
+              <td><span class="tag tag--key">实值 ITM</span></td>
+              <td class="num pos">0.200</td>
+              <td>市价 2.300 买进、按 2.500 卖出,每份赚 0.200</td>
+            </tr>
+            <tr>
+              <td class="num">2.500</td>
+              <td><span class="tag">平值 ATM</span></td>
+              <td class="num">0</td>
+              <td>买卖同一个价,行权不赚不亏</td>
+            </tr>
+            <tr>
+              <td class="num">2.700</td>
+              <td><span class="tag tag--warn">虚值 OTM</span></td>
+              <td class="num">0</td>
+              <td>市价 2.700 能卖,何必用 2.500 卖</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--tip">
+        <span class="callout__t">一句话记住方向</span>
+        认购期权的实值,是<strong>标的在行权价上方</strong>;认沽期权的实值,是<strong>标的在行权价下方</strong>。
+        两者正好相反。另外,虚值期权虽然内在价值是 0,却常常<strong>时间价值占比最高</strong>,所以「便宜」的真正含义是「归零概率更高」,
+        而不是「更划算」。
+      </div>
+
+      <h2 id="european-american"><span class="hnum">8</span>欧式 vs 美式行权(European / American)</h2>
+
+      <p>「什么时候能行使权利」也有两种规则,名字来自历史习惯,和地理没关系:</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>对比项</th><th>欧式期权 European</th><th>美式期权 American</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>行权时机</td>
+              <td>只能在<strong>到期日当天</strong>行权</td>
+              <td>到期日<strong>之前的任意交易日</strong>都能行权</td>
+            </tr>
+            <tr>
+              <td>大白话</td>
+              <td>「限当天用」的券</td>
+              <td>「随时可用」的券</td>
+            </tr>
+            <tr>
+              <td>权利大小</td>
+              <td>较小</td>
+              <td>较大(多了一种选择)</td>
+            </tr>
+            <tr>
+              <td>常见于</td>
+              <td>A 股 ETF 期权多为欧式</td>
+              <td>美股个股期权多为美式</td>
+            </tr>
+            <tr>
+              <td>对定价的影响</td>
+              <td>基准情形</td>
+              <td>因多出的「提前行权选择权」,<strong>通常略贵一点</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>为什么多一种选择会更贵?因为期权是一份<strong>权利</strong>而不是义务。同样的标的、行权价、到期日,如果美式合约可以在分红前或流动性好的时候提前行权、把利润落袋,而欧式只能干等到期,那买方当然愿意为「随时能用」多付一点钱。这份溢价通常不大,但在长期限或高分红标的上会明显一些。</p>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">美式 ≠ 应该提前行权</span>
+        「随时可以行权」不等于「应该提前行权」。提前行权会<strong>立刻丢掉剩下的时间价值</strong>。
+        多数情况下,想结束仓位,直接把期权卖掉比行权更划算。具体规则与费用以交易所公告和券商规则为准。
+      </div>
+
+      <h2><span class="hnum">9</span>合约代码怎么读</h2>
+
+      <p>交易软件里一屏能列出上百个代码,看着像乱码。其实它们都是同一套信息按固定顺序拼出来的。一张合约代码要表达四段意思:</p>
+
+      <div class="formula">
+        <div class="formula__body">标的 + 到期月份 + 认购/认沽 + 行权价 ( + 交易所与年份后两位 )</div>
+        <div class="formula__note">各市场书写顺序与分隔习惯不同,有的用短横线,有的连写;下面的例子只是通用结构,不是任何真实代码</div>
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>片段</th><th>含义</th><th>示例片段</th><th>怎么读</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>标的</td><td>管的是哪样东西</td><td class="mono">ETF2506</td><td>标的 + 到期年月(25 年 6 月)</td></tr>
+            <tr><td>认购 / 认沽</td><td>看涨还是看跌</td><td class="mono">C</td><td>C = 认购(看涨),P = 认沽(看跌)</td></tr>
+            <tr><td>行权价</td><td>锁定的成交价</td><td class="mono">2500</td><td>按市场习惯省略小数位,读作 2.500 元</td></tr>
+            <tr><td>合约单位</td><td>一张管多少份</td><td class="mono">10000</td><td>常见规格,仍以软件显示为准</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>把示例片段拼起来,大致是「<span class="mono">ETF2506-C-2500</span>,单位 10000 份」这样一串,读作:<strong>「25 年 6 月到期、行权价 2.500 元的 ETF 认购期权」</strong>。对照<a href="#elements">第 1 节</a>那张说明书,你会发现代码只是把表里的格子压成一行。</p>
+
+      <div class="callout callout--tip">
+        <span class="callout__t">查代码的三个实用习惯</span>
+        一,先认标的,再看月份(月份决定你还有多少时间);二,看到 <span class="mono">C</span>/<span class="mono">P</span> 先在心里翻译成「看涨/看跌」,
+        别看错方向;三,行权价那串数字一定要确认小数点位置。<strong>不同市场的缩写与排序习惯不一样</strong>,
+        套用之前先看券商软件的合约详情页,上面会把标的、到期日、行权价、合约单位写全。
+      </div>
+
+      <h2><span class="hnum">10</span>到期日周边的时间线</h2>
+
+      <p>「到期日」不是一个孤立的日期,它周围连着三个容易混淆的日子。用时间顺序捋一遍:</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>日子</th><th>这一天发生什么</th><th>你需要注意什么</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>最后交易日</strong><br><span class="small muted">到期日之前或当天</span></td>
+              <td>这是你还能<strong>在市场上买卖这张期权</strong>的最后一天</td>
+              <td>错过它,就只剩行权一条路,不能再「卖掉平仓」;不同市场两者的先后关系不同,以公告为准</td>
+            </tr>
+            <tr>
+              <td><strong>行权日</strong><br><span class="small muted">通常就是到期日</span></td>
+              <td>交易所根据你的申报,决定谁行权、谁被分配到义务</td>
+              <td>当天必须做决定:行权、放弃、或提前平仓。不操作的后果由规则决定,不是「自动最划算」</td>
+            </tr>
+            <tr>
+              <td><strong>交收日</strong><br><span class="small muted">行权之后</span></td>
+              <td>钱和标的真正过户:实物交割换份额,现金结算划差价</td>
+              <td>实物交割要备足钱或份额,不然可能违约;具体时点与安排以交易所和券商规则为准</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>实务上有个反直觉的要点:<strong>到期日当天不是「什么都不做就没事」</strong>。如果你买的是实值期权,放弃行权等于把本来能拿到的差价白送;如果你卖的是期权,到期后被分配到行权义务,就要按约定履约。</p>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">到期日当天必须做决定</span>
+        留给你的时间窗口可能只有几个小时。常见的检查清单是:
+        这张合约现在是实值还是虚值 → 我要平仓、行权,还是放弃 → 行权的话钱或份额够不够。
+        <strong>别把「到期日」当成一个可以拖到第二天再处理的日子。</strong>
+      </div>
+
+      <h2><span class="hnum">11</span>小结:记住这章就够用了</h2>
+
+      <div class="callout callout--key">
+        <span class="callout__t">四句话收尾</span>
+        <ol style="margin:0;padding-left:1.3em">
+          <li><strong>五个要素一次认全</strong>:标的(管什么)、行权价 <span class="var">K</span>(按什么价)、到期日(到哪天)、权利金(多少钱)、合约单位(管多少量)。</li>
+          <li><strong>行权价是死数,市价是活数</strong>;两者的关系决定这张合约是实值、平值还是虚值,也决定它有没有内在价值。</li>
+          <li><strong>权利金 = 内在价值 + 时间价值</strong>,而时间价值随到期临近必然归零——期权不能像股票那样「拿着等回本」。</li>
+          <li><strong>算钱永远要乘合约单位</strong>:报价 0.060 元 × 10000 份 = 600 元,这是新手最容易算错的一步。</li>
+        </ol>
+      </div>
+
+      <hr class="rule">
+
+      <p>到这里,你已经能把一张合约从头读到尾了。但读懂合同不等于会算账:<strong>到期那天到底赚多少、亏多少,平衡点在哪,杠杆到底放大了几倍?</strong>
+      下一章我们不再看文字,直接动手算钱、画图。</p>
+
+      <p class="mt2">
+        <a href="payoff.html"><strong>继续读第 03 章:到期能赚多少 →</strong></a>
+      </p>
+
+      <div class="chaptercta">
+        <div class="chaptercta__txt">
+          <span class="chaptercta__t">▶ 想动手试一遍?</span>
+          去<strong>模拟交易台</strong>,用一支美股标的走完整流程:
+          选到期 → 读期权链 → 下单 → 推动行情 → 平仓,每一步都有对应的知识点讲解,还能看到自己的盈亏是怎么来的。
+        </div>
+        <a class="btn" href="simulator.html">进入模拟交易 →</a>
+      </div>
+
+    </article>
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

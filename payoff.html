@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>到期盈亏 — 期权百科</title>
+<meta name="description" content="用可拖动的到期盈亏图看懂四大基本头寸、盈亏平衡点怎么算,以及期权相对买股票的杠杆效应。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">第 03 章 · 动手算钱</p>
+        <h1>到期那天,我到底赚多少?</h1>
+        <p class="lede">
+          期权最难的地方不是概念,而是"钱怎么算"。这一章只干一件事:
+          把到期盈亏画成一张图,让你一眼看出最多赚多少、最多亏多少、涨到哪才开始赚钱。
+        </p>
+      </div>
+
+      <h2><span class="hnum">1</span>先学会读这张图</h2>
+
+      <p>
+        期权世界里最重要的一个工具,叫<strong>到期盈亏图</strong>(Payoff Diagram,也叫损益图)。
+        它只有两个轴,非常好懂:
+      </p>
+
+      <div class="grid grid--2">
+        <div class="card">
+          <h3 class="card__title">横轴 = 到期时标的的价格</h3>
+          <p class="small muted" style="margin:0">
+            从左到右,代表到期那天股票(或 ETF、指数)可能停在什么价位。
+            比如你买的是 100 元行权价的看涨期权,那横轴就是"到期时股价可能是 70、90、100、120……"
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="card__title">纵轴 = 你的盈亏(元)</h3>
+          <p class="small muted" style="margin:0">
+            零轴以上是赚钱,以下是亏钱。<strong>曲线和零轴的交点</strong>就是"不赚不亏"的那个价位,
+            业内叫<strong>盈亏平衡点</strong>(Break-even Point)。
+          </p>
+        </div>
+      </div>
+
+      <div class="callout callout--key">
+        <span class="callout__t">本站的配色约定(美股习惯)</span>
+        本站统一采用<strong>美股市场习惯</strong>:<strong style="color:var(--profit)">绿色 = 盈利 / 上涨</strong>、
+        <strong style="color:var(--loss)">红色 = 亏损 / 下跌</strong>。
+        这与 A 股「红涨绿跌」相反,如果你习惯看 A 股行情,请在读图时留意切换。<br>
+        <span style="font-size:13.6px;color:var(--ink-3)">提示:右上角的 ◐ 按钮可随时切换深色 / 浅色主题。</span>
+      </div>
+
+      <h2><span class="hnum">2</span>四大基本头寸:所有策略的积木</h2>
+
+      <p>
+        不管多复杂的期权策略,拆开看都只是下面这四种"积木"的组合。先把这四张图刻进脑子里,
+        后面看任何策略都会觉得眼熟。
+      </p>
+
+      <div class="grid grid--2">
+        <div class="card">
+          <h3 style="margin:0 0 4px;font-size:17px">① 买入看涨 <span class="tag tag--long">Long Call</span></h3>
+          <p class="small muted" style="margin:0 0 8px">
+            看涨,又不想承担下跌风险。<strong>亏有限、赚无限。</strong>
+          </p>
+          <div class="chartbox" style="padding:6px">
+            <canvas id="c-lc" height="230" role="img" aria-label="买入看涨期权到期盈亏图"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin:0 0 4px;font-size:17px">② 卖出看涨 <span class="tag tag--short">Short Call</span></h3>
+          <p class="small muted" style="margin:0 0 8px">
+            认为涨不上去,收权利金。<strong>赚有限、亏无限。</strong>
+          </p>
+          <div class="chartbox" style="padding:6px">
+            <canvas id="c-sc" height="230" role="img" aria-label="卖出看涨期权到期盈亏图"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin:0 0 4px;font-size:17px">③ 买入看跌 <span class="tag tag--long">Long Put</span></h3>
+          <p class="small muted" style="margin:0 0 8px">
+            看跌,或给手里的持仓买保险。<strong>亏有限、最大赚到股价归零。</strong>
+          </p>
+          <div class="chartbox" style="padding:6px">
+            <canvas id="c-lp" height="230" role="img" aria-label="买入看跌期权到期盈亏图"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin:0 0 4px;font-size:17px">④ 卖出看跌 <span class="tag tag--short">Short Put</span></h3>
+          <p class="small muted" style="margin:0 0 8px">
+            愿意在更低价位接货,先收权利金。<strong>赚有限、亏很大。</strong>
+          </p>
+          <div class="chartbox" style="padding:6px">
+            <canvas id="c-sp" height="230" role="img" aria-label="卖出看跌期权到期盈亏图"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="tablewrap mt">
+        <table>
+          <thead>
+            <tr>
+              <th>头寸</th><th>什么时候用</th><th>最大盈利</th><th>最大亏损</th><th>盈亏平衡点</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag--long">买入看涨</span></td>
+              <td>强烈看涨,想控制成本</td>
+              <td class="pos">无上限</td>
+              <td class="neg">权利金</td>
+              <td class="mono">行权价 + 权利金</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag--short">卖出看涨</span></td>
+              <td>认为涨不过某个价位</td>
+              <td class="pos">权利金</td>
+              <td class="neg">无下限</td>
+              <td class="mono">行权价 + 权利金</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag--long">买入看跌</span></td>
+              <td>看跌,或给持仓上保险</td>
+              <td class="pos">行权价 − 权利金</td>
+              <td class="neg">权利金</td>
+              <td class="mono">行权价 − 权利金</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag--short">卖出看跌</span></td>
+              <td>愿意低价接货,想收租</td>
+              <td class="pos">权利金</td>
+              <td class="neg">行权价 − 权利金</td>
+              <td class="mono">行权价 − 权利金</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">注意"最大亏损"那一列</span>
+        买入看涨、买入看跌的最大亏损是<strong>确定的、封顶的</strong>,就是权利金。
+        但卖出看涨的最大亏损是"无下限"——因为股价理论上可以无限上涨。
+        这是买方和卖方最本质的不对称,第 <a href="risk.html">07 章</a>会专门展开。
+      </div>
+
+      <h2><span class="hnum">3</span>自己动手调一调</h2>
+
+      <p>
+        下面这个图是可以玩的。拖动滑块改变<strong>行权价</strong>和<strong>权利金</strong>,
+        或者切换头寸类型,观察曲线和三个关键读数怎么变。<strong>先动手,再往下读。</strong>
+      </p>
+
+      <div class="panel">
+        <div class="panel__head">
+          <h3 class="panel__t">到期盈亏模拟器</h3>
+          <p class="panel__hint">拖动滑块 → 曲线实时变化</p>
+        </div>
+
+        <div class="panel__body">
+          <div class="controls">
+            <div class="field">
+              <label>头寸类型</label>
+              <div class="seg" id="posSeg">
+                <button type="button" data-val="lc" aria-pressed="true">买入看涨</button>
+                <button type="button" data-val="sc" aria-pressed="false">卖出看涨</button>
+                <button type="button" data-val="lp" aria-pressed="false">买入看跌</button>
+                <button type="button" data-val="sp" aria-pressed="false">卖出看跌</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>行权价 K <span class="field__val" data-for="sK">—</span></label>
+              <input type="range" id="sK" min="60" max="140" step="1" value="100">
+              <p class="field__hint">合约里约定的那个"未来成交价"</p>
+            </div>
+
+            <div class="field">
+              <label>权利金 <span class="field__val" data-for="sP">—</span></label>
+              <input type="range" id="sP" min="0.5" max="20" step="0.5" value="5">
+              <p class="field__hint">你为这张期权付出的价格(每单位)</p>
+            </div>
+
+            <div class="field">
+              <label>标的现价 <span class="field__val" data-for="sS">—</span></label>
+              <input type="range" id="sS" min="60" max="140" step="1" value="100">
+              <p class="field__hint">只影响黑色竖线的位置</p>
+            </div>
+
+            <div class="field">
+              <label>每张合约乘数 <span class="field__val" data-for="sM">—</span></label>
+              <input type="range" id="sM" min="1" max="10000" step="1" value="100">
+              <p class="field__hint">下面所有金额都按"每张合约"计算</p>
+            </div>
+          </div>
+
+          <div>
+            <div class="chartbox">
+              <canvas id="mainChart" height="380" role="img" aria-label="可交互的到期盈亏图"></canvas>
+            </div>
+
+            <div class="readout mt">
+              <div class="readout__item">
+                <span class="readout__k">最大盈利</span>
+                <div class="readout__v" id="rMaxP" style="color:var(--profit)">—</div>
+                <span class="readout__note" id="rMaxPNote">—</span>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">最大亏损</span>
+                <div class="readout__v" id="rMaxL" style="color:var(--loss)">—</div>
+                <span class="readout__note" id="rMaxLNote">—</span>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">盈亏平衡点</span>
+                <div class="readout__v" id="rBE">—</div>
+                <span class="readout__note">涨过(或跌过)这里才开始赚</span>
+              </div>
+              <div class="readout__item">
+                <span class="readout__k">到期现值</span>
+                <div class="readout__v" id="rNow">—</div>
+                <span class="readout__note" id="rNowNote">现价不动时的到期盈亏</span>
+              </div>
+            </div>
+
+            <div class="legend">
+              <span><i style="background:var(--profit)"></i>盈利区间</span>
+              <span><i style="background:var(--loss)"></i>亏损区间</span>
+              <span><i style="background:var(--ink4)"></i>行权价 K</span>
+              <span><i style="background:var(--ink)"></i>标的现价</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout--tip mt">
+        <span class="callout__t">观察建议</span>
+        ① 把权利金从 5 拖到 15,看平衡点往右跑了多远——<strong>权利金越贵,需要的涨幅越大</strong>。<br>
+        ② 切换成"卖出看涨",注意曲线整个翻过来了:赚的区间变宽(大概率小赚),但右侧一路向下不回头。<br>
+        ③ 把行权价调到 120、现价留在 100,再选"买入看跌",看看虚值看跌期权的图长什么样。
+      </div>
+
+      <h2><span class="hnum">4</span>盈亏平衡点:把公式记住</h2>
+
+      <p>
+        平衡点的含义是"到期时正好不赚不亏"。把<strong>内在价值 = 权利金</strong>这个条件解出来就得到了,
+        所以四个基本头寸的公式非常简单:
+      </p>
+
+      <div class="formula">
+        <div class="formula__body">买入看涨 / 卖出看涨:  平衡点 = <span style="color:inherit">K + 权利金</span>
+买入看跌 / 卖出看跌:  平衡点 = <span style="color:inherit">K − 权利金</span></div>
+        <div class="formula__note">
+          直觉:买看涨,你得先把"付出的权利金"赚回来,所以要在行权价之上再涨一个权利金的距离才回本。
+          买看跌同理,要在行权价之下再跌一个权利金的距离。
+        </div>
+      </div>
+
+      <p>
+        用本章的例子验证一下:行权价 <span class="mono">100</span>、权利金 <span class="mono">5</span> 的看涨期权,
+        平衡点 = 100 + 5 = <span class="mono">105</span>。也就是说,你判断对方向还不够——
+        <strong>股价必须涨到 105 以上你才开始真正赚钱</strong>。这是新手最容易低估的一点。
+      </p>
+
+      <h2><span class="hnum">5</span>杠杆:期权为什么"以小博大"</h2>
+
+      <p>
+        同样看好一只 100 元的股票,你可以直接买入,也可以买它的看涨期权。
+        下面这张表会根据你刚才选的参数实时计算,对比两种做法的收益率。
+      </p>
+
+      <div class="panel">
+        <div class="panel__head">
+          <h3 class="panel__t">杠杆对比:买入标的 vs 买入看涨期权</h3>
+          <p class="panel__hint">投入同样一笔钱,涨跌幅带来的收益完全不同</p>
+        </div>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>到期时标的价</th>
+                <th>涨跌幅</th>
+                <th class="num">直接买标的:收益率</th>
+                <th class="num">买看涨期权:收益率</th>
+                <th class="num">期权盈亏(每张)</th>
+              </tr>
+            </thead>
+            <tbody id="levBody">
+              <tr><td colspan="5" class="muted small">加载中…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small muted" style="margin:14px 0 0">
+          说明:为了让对比公平,两种做法投入相同的本金。买标的用 <span class="mono" id="levCapital">—</span> 元
+          可以买 <span class="mono" id="levShares">—</span> 股;同样的钱可以买 <span class="mono" id="levContracts">—</span>
+          张期权。期权的收益率按"期权市值变化 / 投入本金"计算。
+          <strong>注意下跌那一行</strong>——期权买方最多亏光本金,不会倒欠。
+        </p>
+      </div>
+
+      <div class="callout callout--key mt">
+        <span class="callout__t">杠杆的本质</span>
+        期权之所以"以小博大",是因为你付出的权利金远小于标的市值,但盈亏是按标的的<strong>全部涨跌</strong>结算的。
+        杠杆放大的不只是收益,也包括亏损比例。买入标的跌 10% 你亏 10%;买入期权跌 10%,
+        你的权利金可能亏掉一半甚至全部。
+      </div>
+
+      <h2><span class="hnum">6</span>别忘了那条虚线:未到期时的盈亏</h2>
+
+      <p>
+        上面所有的图都有一个隐含前提:<strong>你持有到到期日</strong>。但在到期之前,
+        期权的价格里还包含<strong>时间价值</strong>,所以实际盈亏曲线不是折线,而是一条平滑的曲线。
+      </p>
+
+      <p>
+        打开下面的开关,图上会多出一条蓝色虚线,代表"如果今天就想平仓,盈亏会是多少"
+        (假设剩余时间还有 30 天、隐含波动率 30%):
+      </p>
+
+      <div class="panel">
+        <div class="panel__head">
+          <h3 class="panel__t">到期曲线 vs 当前曲线</h3>
+          <p class="panel__hint">虚线在到期日会逐渐贴近实线</p>
+        </div>
+        <div class="panel__body">
+          <div class="controls">
+            <div class="field">
+              <label>显示未到期盈亏曲线</label>
+              <div class="seg" id="nowSeg">
+                <button type="button" data-val="off" aria-pressed="false">只看到期</button>
+                <button type="button" data-val="on" aria-pressed="true">叠加当前盈亏</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>剩余天数 <span class="field__val" data-for="sD">—</span></label>
+              <input type="range" id="sD" min="1" max="180" step="1" value="30">
+              <p class="field__hint">拖到 1 天,看虚线怎么贴上实线</p>
+            </div>
+            <div class="field">
+              <label>隐含波动率 <span class="field__val" data-for="sV">—</span></label>
+              <input type="range" id="sV" min="5" max="120" step="1" value="30">
+              <p class="field__hint">波动率越高,虚线离实线越远</p>
+            </div>
+          </div>
+          <div>
+            <div class="chartbox">
+              <canvas id="cmpChart" height="360" role="img" aria-label="到期盈亏与当前盈亏对比图"></canvas>
+            </div>
+            <div class="legend">
+              <span><i style="background:var(--profit)"></i>到期盈亏(实线)</span>
+              <span><i style="background:var(--accent)"></i>当前盈亏(虚线)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout--warn mt">
+        <span class="callout__t">这条虚线解释了买方最常犯的错</span>
+        把剩余天数拖到很小(比如 1 天),你会看到蓝色虚线几乎贴在到期盈亏实线上——
+        这就是"<strong>时间价值被磨光了</strong>"。
+        反过来,当剩余时间还很长时,即使标的没涨,虚线也会明显高于实线,
+        意思是"期权现在卖掉比持有到期更值钱"。<strong>期权不必持有到期</strong>,
+        大多数交易者其实是在到期前平仓的。
+      </div>
+
+      <h2><span class="hnum">7</span>小结</h2>
+
+      <div class="callout callout--key">
+        <span class="callout__t">读完这章你应该能回答</span>
+        <ul style="margin:8px 0 0;padding-left:1.2em">
+          <li>到期盈亏图的横轴、纵轴、零轴各代表什么。</li>
+          <li>四个基本头寸各自的最大盈利、最大亏损、平衡点公式。</li>
+          <li>为什么"方向看对了还可能亏钱"——因为权利金成本抬高了门槛。</li>
+          <li>为什么买方的亏损封顶,而卖方的亏损可能无下限。</li>
+          <li>未到期时的盈亏曲线为什么是平滑的,它和到期曲线差在哪。</li>
+        </ul>
+      </div>
+
+      <p>
+        到这里你已经会算钱了。但还有一个更根本的问题没解决:
+        <strong>那张期权的权利金,凭什么值 5 元而不是 3 元?</strong>
+        下一章我们用定价模型把它拆开看。
+      </p>
+
+      <p class="mt2">
+        <a class="btn" href="pricing.html" style="display:inline-block">继续读第 04 章 · 权利金从哪来 →</a>
+      </p>
+
+      <div class="chaptercta">
+        <div class="chaptercta__txt">
+          <span class="chaptercta__t">▶ 想动手试一遍?</span>
+          去<strong>模拟交易台</strong>,用一支美股标的走完整流程:
+          选到期 → 读期权链 → 下单 → 推动行情 → 平仓,每一步都有对应的知识点讲解,还能看到自己的盈亏是怎么来的。
+        </div>
+        <a class="btn" href="simulator.html">进入模拟交易 →</a>
+      </div>
+
+    </article>
+
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------------- 四大基本头寸静态图 ---------------- */
+  var staticPositions = [
+    { id: 'c-lc', kind: 'call', dir: 1 },
+    { id: 'c-sc', kind: 'call', dir: -1 },
+    { id: 'c-lp', kind: 'put', dir: 1 },
+    { id: 'c-sp', kind: 'put', dir: -1 }
+  ];
+
+  staticPositions.forEach(function (p) {
+    var canvas = document.getElementById(p.id);
+    if (!canvas) return;
+    var legs = [{ kind: p.kind, dir: p.dir, K: 100, premium: 5, qty: 1 }];
+    Charts.bind(canvas, function () {
+      Charts.payoff(canvas, {
+        legs: legs, spot: 100, lo: 70, hi: 135, height: 230
+      });
+    });
+  });
+
+  /* ---------------- 交互状态 ---------------- */
+  var state = {
+    pos: 'lc',
+    K: 100,
+    P: 5,
+    S: 100,
+    M: 100,
+    showNow: true,
+    days: 30,
+    vol: 30
+  };
+
+  var POS = {
+    lc: { kind: 'call', dir: 1, name: '买入看涨' },
+    sc: { kind: 'call', dir: -1, name: '卖出看涨' },
+    lp: { kind: 'put', dir: 1, name: '买入看跌' },
+    sp: { kind: 'put', dir: -1, name: '卖出看跌' }
+  };
+
+  function legsNow() {
+    var p = POS[state.pos];
+    return [{ kind: p.kind, dir: p.dir, K: state.K, premium: state.P, qty: 1 }];
+  }
+
+  /* ---------------- 主图 ---------------- */
+  var mainCanvas = document.getElementById('mainChart');
+  var cmpCanvas = document.getElementById('cmpChart');
+
+  function renderMain() {
+    if (!mainCanvas) return;
+    var legs = legsNow();
+    var lo = Math.max(1, Math.round(state.K * 0.65));
+    var hi = Math.round(state.K * 1.4);
+
+    var info = Charts.payoff(mainCanvas, {
+      legs: legs,
+      spot: state.S,
+      lo: lo,
+      hi: hi,
+      height: 380
+    });
+
+    // 读数:用解析极值,再乘乘数
+    var ex = BS.extremes(legs);
+    var M = state.M;
+
+    setReadout('rMaxP', 'rMaxPNote', ex.maxProfit, M, '盈利');
+    setReadout('rMaxL', 'rMaxLNote', ex.maxLoss, M, '亏损');
+
+    var be = info.breakevens.length ? info.breakevens : [];
+    document.getElementById('rBE').textContent = be.length
+      ? be.map(function (v) { return v.toFixed(2); }).join(' / ')
+      : '不存在';
+
+    var atSpot = BS.payoffAt(legs, state.S) * M;
+    var nowEl = document.getElementById('rNow');
+    nowEl.textContent = Site.signed(atSpot, 0) + ' 元';
+    nowEl.className = 'readout__v ' + Site.plClass(atSpot);
+    document.getElementById('rNowNote').textContent =
+      '到期时标的仍在 ' + state.S + ' → ' + (atSpot > 0 ? '赚' : atSpot < 0 ? '亏' : '打平');
+  }
+
+  function setReadout(id, noteId, val, M, word) {
+    var el = document.getElementById(id);
+    var note = document.getElementById(noteId);
+    if (!el) return;
+    if (!isFinite(val)) {
+      el.textContent = val > 0 ? '无上限' : '无下限';
+      el.style.color = val > 0 ? 'var(--profit)' : 'var(--loss)';
+      note.textContent = val > 0
+        ? '标的涨得越高赚得越多'
+        : '标的涨得越高亏得越多,风险极大';
+      return;
+    }
+    var money = val * M;
+    el.textContent = Site.signed(money, 0) + ' 元';
+    el.style.color = money > 0 ? 'var(--profit)' : money < 0 ? 'var(--loss)' : 'var(--ink)';
+    note.textContent = '每单位 ' + val.toFixed(2) + ' × ' + M + ' 乘数';
+  }
+
+  /* ---------------- 杠杆对比表 ---------------- */
+  function renderLeverage() {
+    var tbody = document.getElementById('levBody');
+    if (!tbody) return;
+
+    var M = state.M;
+    var K = state.K, P = state.P, S = state.S;
+    var capital = 10000;
+
+    // 同样的本金:能买多少股标的 / 多少张期权
+    var shares = Math.floor(capital / S);
+    var costPerContract = P * M;
+    var contracts = costPerContract > 0 ? Math.floor(capital / costPerContract) : 0;
+    var usedCapital = contracts * costPerContract;
+
+    document.getElementById('levCapital').textContent = Site.money(capital, 0);
+    document.getElementById('levShares').textContent = shares;
+    document.getElementById('levContracts').textContent = contracts;
+
+    var moves = [-0.30, -0.20, -0.10, 0, 0.10, 0.20, 0.30, 0.50];
+    var rows = moves.map(function (mv) {
+      var ST = S * (1 + mv);
+      var stockPL = shares * (ST - S);
+      var stockRet = capital > 0 ? stockPL / capital : 0;
+
+      var optPLper = BS.legPayoff({ kind: POS[state.pos].kind, dir: POS[state.pos].dir, K: K, premium: P }, ST);
+      var optPL = optPLper * M * contracts;
+      var optRet = usedCapital > 0 ? optPL / usedCapital : 0;
+
+      return { ST: ST, mv: mv, stockRet: stockRet, optRet: optRet, optPL: optPL, optPLper: optPLper };
+    });
+
+    tbody.innerHTML = rows.map(function (r) {
+      var stockCls = r.stockRet > 0 ? 'pos' : r.stockRet < 0 ? 'neg' : 'muted';
+      var optCls = r.optRet > 0 ? 'pos' : r.optRet < 0 ? 'neg' : 'muted';
+      return '<tr>' +
+        '<td class="num">' + r.ST.toFixed(2) + '</td>' +
+        '<td class="num ' + (r.mv > 0 ? 'pos' : r.mv < 0 ? 'neg' : 'muted') + '">' + (r.mv > 0 ? '+' : '') + (r.mv * 100).toFixed(0) + '%</td>' +
+        '<td class="num ' + stockCls + '">' + Site.signedPct(r.stockRet, 1) + '</td>' +
+        '<td class="num ' + optCls + '">' + Site.signedPct(r.optRet, 1) + '</td>' +
+        '<td class="num ' + optCls + '">' + Site.signed(r.optPL, 0) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  /* ---------------- 到期 vs 当前 ---------------- */
+  function renderCompare() {
+    if (!cmpCanvas) return;
+    var legs = legsNow();
+    var lo = Math.max(1, Math.round(state.K * 0.65));
+    var hi = Math.round(state.K * 1.4);
+
+    Charts.payoff(cmpCanvas, {
+      legs: legs,
+      spot: state.S,
+      lo: lo,
+      hi: hi,
+      height: 360,
+      showNow: state.showNow,
+      remainingT: state.days / 365,
+      r: 0.02,
+      sigma: state.vol / 100
+    });
+  }
+
+  function renderAll() {
+    renderMain();
+    renderLeverage();
+    renderCompare();
+  }
+
+  /* ---------------- 绑定控件 ---------------- */
+
+  Site.bindSeg('posSeg', function (v) { state.pos = v; renderAll(); }, 'lc');
+  Site.bindSeg('nowSeg', function (v) { state.showNow = (v === 'on'); renderCompare(); }, 'on');
+
+  Site.bindSlider('sK', function (v) { state.K = v; renderAll(); }, function (v) { return v.toFixed(0); });
+  Site.bindSlider('sP', function (v) { state.P = v; renderAll(); }, function (v) { return v.toFixed(2); });
+  Site.bindSlider('sS', function (v) { state.S = v; renderAll(); }, function (v) { return v.toFixed(0); });
+  Site.bindSlider('sM', function (v) { state.M = v; renderAll(); }, function (v) { return v.toFixed(0); });
+  Site.bindSlider('sD', function (v) { state.days = v; renderCompare(); }, function (v) { return v.toFixed(0) + ' 天'; });
+  Site.bindSlider('sV', function (v) { state.vol = v; renderCompare(); }, function (v) { return v.toFixed(0) + '%'; });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>

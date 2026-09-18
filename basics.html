@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>期权是什么 — 期权百科</title>
+<meta name="description" content="用定金、保险、卖保险三个生活类比讲清楚期权是什么:权利而非义务、行权价与到期日、买方与卖方的对比、四大基本头寸的盈亏与平衡点。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">第 01 章 · 建立直觉</p>
+        <h1>期权是什么</h1>
+        <p class="lede">期权是一份「先付一笔小钱、换一个选择权」的合约:你可以按约定价格买卖,也可以到时不理会。本章用三个生活类比,把权利、义务和四大基本头寸讲清楚。</p>
+      </div>
+
+      <h2><span class="hnum">1</span>三个生活类比:先付小钱,买一个选择权</h2>
+
+      <p>先别急着背定义。期权难懂,是因为它描述的不是一样「东西」,而是一种「选择」。先用三件生活里的小事把感觉对齐。</p>
+
+      <div class="grid grid--3">
+        <div class="card">
+          <h3>定金</h3>
+          <p class="muted small">先付一笔钱,把价格锁住</p>
+          <p style="margin-top:10px">你看中一套房,和卖家约定:三个月内按 500 万买,先付 10 万定金。三个月后房价涨到 550 万,你按 500 万成交,省下的 50 万远超 10 万;房价跌到 450 万,你放弃交易,代价就是那 10 万。</p>
+          <p style="margin-top:10px"><strong>定金就是你的成本上限。</strong>对应到期权:定金 ≈ 权利金,500 万 ≈ 行权价,三个月 ≈ 到期日。</p>
+        </div>
+        <div class="card">
+          <h3>买保险</h3>
+          <p class="muted small">付保费,买「出事时的保障」</p>
+          <p style="margin-top:10px">你给车买保险,一年交 6000 元。这一年平安无事,保费不退,被「消费」掉了;真出事故,保险公司赔你几万甚至几十万。</p>
+          <p style="margin-top:10px">买保险的人买的正是「出事时的保障」,平时看着像白花钱——<strong>这正是期权买方的处境</strong>:多数期权到期时一文不值,少数时候能替你挡住大额损失。</p>
+        </div>
+        <div class="card">
+          <h3>卖保险的人</h3>
+          <p class="muted small">收保费,小概率赔一大笔</p>
+          <p style="margin-top:10px">保险公司站在对面:每份保单收 6000 元,多数年份保费远多于赔付,日子很舒服;但一场大灾害、一次大面积事故,可能一次赔掉好几年的利润。</p>
+          <p style="margin-top:10px">期权卖方就是这样:<strong>胜率高、单次赚得少,却要承担小概率的大额亏损。</strong></p>
+        </div>
+      </div>
+
+      <div class="callout callout--key">
+        <span class="callout__t">抓住这一句就够了</span>
+        三件事是同一句话:<strong>先付一小笔钱,锁定一个价格,并且保留「到时不做」的自由。</strong>
+        付出去的这笔小钱(权利金)就是你能承受的最大代价;而收下这笔小钱的人,必须在你想做的时候陪你做。
+      </div>
+
+      <h2><span class="hnum">2</span>正式定义:权利,而不是义务</h2>
+
+      <p>把上面的直觉写成一句话:<strong>期权(option)是一份合约,它赋予买方在约定的最后期限之前,按约定的价格,买入或卖出一定数量标的资产的权利,但不包含必须执行的义务。</strong>这里的标的资产(underlying)指合约指向的东西,例如某只股票或指数。买方为得到这个权利而支付给卖方的钱,叫<strong>权利金(premium)</strong>——权利金就是期权的价格,像商品标价一样由供需与预期共同决定(怎么算出来见第 04 章)。</p>
+
+      <div class="formula">
+        <div class="formula__body">期权 = 权利(而非义务)
+     + 行权价 <span class="var">K</span>(约定的买卖价格)
+     + 到期日 <span class="var">T</span>(约定的最后时点)
+支付的对价 = 权利金 premium = 期权的价格</div>
+        <div class="formula__note">
+          <span class="var">K</span> 取自 strike price(行权价、执行价)的首字母,<span class="var">T</span> 表示距离到期还剩多久。
+        </div>
+      </div>
+
+      <p class="mt">定义里有三个关键词值得单独记住:</p>
+
+      <ul>
+        <li><strong>权利而非义务。</strong>到期时你可以行权(exercise,真的按约定价格成交),也可以让合约直接作废,没有任何人能强迫你。这是期权区别于其他所有合约的根本之处。</li>
+        <li><strong>约定的价格——行权价(strike price,记作 <span class="var">K</span>)。</strong>合约里写死的买卖价,和到期时股票的市场价无关。</li>
+        <li><strong>约定的未来时点——到期日(expiration date)。</strong>过了这一天,权利就消失了。股票可以一直拿着,期权不行,这是新手最容易忽略的一条。</li>
+      </ul>
+
+      <h2><span class="hnum">3</span>买方与卖方:一次严格对称的权利交换</h2>
+
+      <p>期权<strong>不是上市公司发行的</strong>,它更像是两个交易者之间签下的一份合约。交易所与清算机构负责标准化条款、担保履约,但对手方是另一个交易者或做市商。因此不考虑手续费时,一方赚到的钱就是另一方亏掉的钱,这叫<strong>零和(zero-sum)</strong>。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>对比维度</th>
+              <th>买方 <span class="tag tag--long">Long</span></th>
+              <th>卖方 <span class="tag tag--short">Short</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>谁付钱、谁收钱</td>
+              <td>开仓时付出权利金</td>
+              <td>开仓时收进权利金</td>
+            </tr>
+            <tr>
+              <td>拥有权利还是承担义务</td>
+              <td>拥有权利,可以行权,也可以放弃</td>
+              <td>承担义务,买方要行权时必须配合</td>
+            </tr>
+            <tr>
+              <td>最大盈利</td>
+              <td>买入看涨<span class="pos">理论上无上限</span>;买入看跌有限(标的跌到 0 为止)</td>
+              <td>最多就是收到的权利金,一笔<span class="pos">确定的、封顶的</span>收入</td>
+            </tr>
+            <tr>
+              <td>最大亏损</td>
+              <td>最多亏掉全部权利金,<span class="neg">金额事先已知</span></td>
+              <td>卖出看涨<span class="neg">理论无上限</span>;卖出看跌亏损也很大(标的跌到 0)</td>
+            </tr>
+            <tr>
+              <td>胜率感受</td>
+              <td>胜率低:常常小亏,但赢一次可能赢很多</td>
+              <td>胜率高:常常小赚,但输一次可能输很多</td>
+            </tr>
+            <tr>
+              <td>保证金要求</td>
+              <td>通常不需要(买方风险已封顶)</td>
+              <td>通常需要缴纳保证金,亏损扩大时可能被要求追加</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">卖方不是「稳收钱」</span>
+        卖方收下的权利金是有限的,承担的却是可能很大的义务。手里没有股票却卖出看涨期权(称为裸卖看涨),理论亏损没有上限。也正因如此,卖出期权通常要缴纳<strong>保证金(margin,一笔押金)</strong>,亏损扩大时券商可能要求追加,追加不上就可能被强制平仓。具体比例与门槛<strong>以交易所和券商的最新规则为准</strong>,详见第 07 章。
+      </div>
+
+      <h2><span class="hnum">4</span>四大基本头寸:四块积木</h2>
+
+      <p>期权只有两种:看涨期权(call,涨价才划算的那张)和看跌期权(put,跌价才划算的那张);每一种都可以买或卖,于是得到<strong>四个基本头寸</strong>,后面所有组合策略都是这四块积木拼出来的。以下统一用一组数字:股票现价 <span class="mono">100</span> 元,行权价 <span class="mono">100</span> 元的看涨期权权利金 <span class="mono">5</span> 元,看跌期权权利金 <span class="mono">4</span> 元;金额均按<strong>每股</strong>计。</p>
+
+      <div class="grid grid--2">
+        <div class="card">
+          <h3>买入看涨 <span class="tag tag--long">买方</span></h3>
+          <p class="muted small mono">Long Call</p>
+          <p style="margin-top:10px"><strong>什么看法下用:</strong>认为股价会明显上涨,越猛越好。</p>
+          <p style="margin-top:10px"><strong>最大盈利:</strong>股价越高赚越多,理论上<span class="pos">没有上限</span>。</p>
+          <p style="margin-top:10px"><strong>最大亏损:</strong>权利金 <span class="mono">5</span> 元,股价再跌也不会多亏。</p>
+          <p style="margin-top:10px"><strong>盈亏平衡点:</strong><span class="mono">100 + 5 = 105</span> 元,涨过 105 元才开始真正赚钱。</p>
+        </div>
+        <div class="card">
+          <h3>卖出看涨 <span class="tag tag--short">卖方</span></h3>
+          <p class="muted small mono">Short Call</p>
+          <p style="margin-top:10px"><strong>什么看法下用:</strong>认为股价涨不过 105 元,会横盘或者下跌。</p>
+          <p style="margin-top:10px"><strong>最大盈利:</strong>收到的权利金 <span class="pos">5</span> 元,就这么多。</p>
+          <p style="margin-top:10px"><strong>最大亏损:</strong>股价上涨的空间有多大,亏损就有多大,理论上<span class="neg">无上限</span>。</p>
+          <p style="margin-top:10px"><strong>盈亏平衡点:</strong>同样是 <span class="mono">105</span> 元,涨过就开始亏。</p>
+        </div>
+        <div class="card">
+          <h3>买入看跌 <span class="tag tag--long">买方</span></h3>
+          <p class="muted small mono">Long Put</p>
+          <p style="margin-top:10px"><strong>什么看法下用:</strong>认为股价会明显下跌,或者要给手里的股票买保险。</p>
+          <p style="margin-top:10px"><strong>最大盈利:</strong>股价跌到 0 时最多赚 <span class="mono">100 − 0 − 4 = 96</span> 元,<span class="pos">有限但很可观</span>。</p>
+          <p style="margin-top:10px"><strong>最大亏损:</strong>权利金 <span class="mono">4</span> 元。</p>
+          <p style="margin-top:10px"><strong>盈亏平衡点:</strong><span class="mono">100 − 4 = 96</span> 元,跌破 96 元才开始赚。</p>
+        </div>
+        <div class="card">
+          <h3>卖出看跌 <span class="tag tag--short">卖方</span></h3>
+          <p class="muted small mono">Short Put</p>
+          <p style="margin-top:10px"><strong>什么看法下用:</strong>认为股价能站稳 96 元以上,不跌或者小涨。</p>
+          <p style="margin-top:10px"><strong>最大盈利:</strong>收到的权利金 <span class="pos">4</span> 元。</p>
+          <p style="margin-top:10px"><strong>最大亏损:</strong>股价跌到 0 时亏 <span class="mono">96</span> 元,<span class="neg">是权利金的二十多倍</span>。</p>
+          <p style="margin-top:10px"><strong>盈亏平衡点:</strong><span class="mono">96</span> 元。</p>
+        </div>
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>头寸</th>
+              <th>什么看法下用</th>
+              <th class="num">最大盈利</th>
+              <th class="num">最大亏损</th>
+              <th class="num">盈亏平衡点</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>买入看涨 <span class="muted small">Long Call</span></td>
+              <td>看涨,越猛越好</td>
+              <td class="num"><span class="pos">无上限</span></td>
+              <td class="num"><span class="neg">5 元</span></td>
+              <td class="num">105 元</td>
+            </tr>
+            <tr>
+              <td>卖出看涨 <span class="muted small">Short Call</span></td>
+              <td>看不涨,横盘或下跌</td>
+              <td class="num"><span class="pos">5 元</span></td>
+              <td class="num"><span class="neg">无上限</span></td>
+              <td class="num">105 元</td>
+            </tr>
+            <tr>
+              <td>买入看跌 <span class="muted small">Long Put</span></td>
+              <td>看跌,或给持仓买保险</td>
+              <td class="num"><span class="pos">96 元</span></td>
+              <td class="num"><span class="neg">4 元</span></td>
+              <td class="num">96 元</td>
+            </tr>
+            <tr>
+              <td>卖出看跌 <span class="muted small">Short Put</span></td>
+              <td>看不跌,能站稳就行</td>
+              <td class="num"><span class="pos">4 元</span></td>
+              <td class="num"><span class="neg">96 元</span></td>
+              <td class="num">96 元</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="formula">
+        <div class="formula__body">买入看涨 / 卖出看涨:平衡点 = <span class="var">K</span> + 权利金 = 100 + 5 = 105
+买入看跌 / 卖出看跌:平衡点 = <span class="var">K</span> − 权利金 = 100 − 4 = 96</div>
+        <div class="formula__note">
+          同一行权价上,看涨与看跌互为镜像:买卖方向相反、权利义务相反,但平衡点都只由行权价与权利金决定。另外记住买入看跌的最大盈利 = <span class="var">K</span> − 权利金(标的跌到 0 时)。
+        </div>
+      </div>
+
+      <div class="callout callout--tip">
+        <span class="callout__t">先记形状,再谈定价</span>
+        第 03 章<a href="payoff.html">到期盈亏</a>可以拖动行权价与权利金,实时看这四张图怎么变形;先看熟形状,再读第 04 章定价。
+      </div>
+
+      <h2><span class="hnum">5</span>为什么会有期权市场</h2>
+
+      <p>一份合约要长期存在,必须有人真心需要它。期权同时服务三类需求。</p>
+
+      <div class="grid grid--3">
+        <div class="card">
+          <h3>保险与对冲</h3>
+          <p class="muted small mono">Hedging</p>
+          <p style="margin-top:10px">你手里有 100 元买来的股票,担心它跌,于是花 <span class="mono">4</span> 元买一张行权价 95 元的看跌期权。跌下去有它兜底,涨上去照样享受上涨——相当于给持仓买了保险,保费就是那 <span class="mono">4</span> 元。</p>
+        </div>
+        <div class="card">
+          <h3>杠杆与方向性投机</h3>
+          <p class="muted small mono">Speculation</p>
+          <p style="margin-top:10px">想赌某只股票一个月内大涨,直接买股票要 100 元;买入行权价 100 元的看涨期权只要 <span class="mono">5</span> 元。方向对了,收益率被成倍放大;方向错了,5 元全部归零。</p>
+        </div>
+        <div class="card">
+          <h3>套利与做市</h3>
+          <p class="muted small mono">Arbitrage / Market making</p>
+          <p style="margin-top:10px">当看涨、看跌与股票三者的价格出现不合理偏差时,专业机构同时买卖两边赚取差价;做市商则持续报出买价与卖价,靠买卖价差(bid-ask spread)获利,顺带让普通人随时能成交。</p>
+        </div>
+      </div>
+
+      <div class="callout callout--case">
+        <span class="callout__t">一句话总结</span>
+        期权真正交易的标的不是股票,而是<strong>「风险」本身</strong>:把涨跌的不确定性切出来、定好价,再卖给需要它的人。这就是<strong>衍生品(derivative,价格衍生自另一种资产)</strong>的含义。
+      </div>
+
+      <h2><span class="hnum">6</span>期权、股票、期货:一张表看清区别</h2>
+
+      <p>新手容易把期权和期货混在一起:都带杠杆、都有到期日,本质却差得很远。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>对比维度</th>
+              <th>股票 stock</th>
+              <th>期货 futures</th>
+              <th>期权 options</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>是否必须履约</td>
+              <td>不存在履约问题,买入即成为股东</td>
+              <td>到期必须履约或提前平仓,是<strong>义务</strong></td>
+              <td>买方可行权,也可放弃;卖方必须配合</td>
+            </tr>
+            <tr>
+              <td>有没有到期日</td>
+              <td>没有,可以长期持有</td>
+              <td>有</td>
+              <td>有,过期权利作废</td>
+            </tr>
+            <tr>
+              <td>权利义务是否对称</td>
+              <td>不涉及</td>
+              <td>对称,买卖双方都要履约</td>
+              <td><strong>不对称</strong>:买方只有权利,卖方只有义务</td>
+            </tr>
+            <tr>
+              <td>是否有保证金要求</td>
+              <td>全额买入一般不涉及</td>
+              <td>双方通常都需要</td>
+              <td>买方通常不需要;卖方通常需要</td>
+            </tr>
+            <tr>
+              <td>最大亏损</td>
+              <td>最多亏掉全部股价</td>
+              <td>可能远超本金</td>
+              <td>买方最多亏掉权利金;卖方可能亏很多</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--key">
+        <span class="callout__t">一句话记住</span>
+        <strong>期货是义务,期权是权利。</strong>期货的买卖双方都「必须做」;期权只有卖方「必须陪」。所以期货像一份必须兑现的约定,期权像一张可以撕掉的优惠券。保证金与准入规则请<strong>以交易所与券商的最新规则为准</strong>。
+      </div>
+
+      <h2><span class="hnum">7</span>本章小结</h2>
+
+      <div class="callout callout--key">
+        <span class="callout__t">读完这一章,你应该能记住</span>
+        <ul>
+          <li><strong>期权是权利,不是义务。</strong>买方付权利金买到「可以不做」的自由,卖方收权利金换来「必须配合」的义务。</li>
+          <li><strong>三个关键词:行权价 <span class="var">K</span>、到期日 <span class="var">T</span>、权利金。</strong>权利金就是期权的价格,过期不行权,权利直接归零。</li>
+          <li><strong>盈亏结构天生不对称。</strong>买方亏损封顶、盈利打开;卖方盈利封顶、亏损打开,因此通常要交保证金。</li>
+          <li><strong>四大基本头寸 = 看涨/看跌 × 买入/卖出。</strong>买入看涨与买入看跌的平衡点分别是 <span class="var">K</span> + 权利金、<span class="var">K</span> − 权利金。</li>
+        </ul>
+      </div>
+
+      <p class="mt2">期权是花小钱买来的选择权——但一张合约上究竟写了什么?什么算实值、虚值?欧式与美式又差在哪?下一章<a href="contract.html">第 02 章《一张合约的五个要素》</a>会把合约细节一条条拆开。</p>
+
+      <div class="chaptercta">
+        <div class="chaptercta__txt">
+          <span class="chaptercta__t">▶ 想动手试一遍?</span>
+          去<strong>模拟交易台</strong>,用一支美股标的走完整流程:
+          选到期 → 读期权链 → 下单 → 推动行情 → 平仓,每一步都有对应的知识点讲解,还能看到自己的盈亏是怎么来的。
+        </div>
+        <a class="btn" href="simulator.html">进入模拟交易 →</a>
+      </div>
+
+    </article>
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

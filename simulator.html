@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>模拟交易 — 期权百科</title>
+<meta name="description" content="美股期权实盘模拟:从看标的、选到期、读期权链、下单成交,到盯盘与平仓,边操作边讲解每一步背后的知识。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">实战 · 一笔真实流程的模拟</p>
+        <h1>模拟交易:从看盘到平仓,走一遍完整流程</h1>
+        <p class="lede">
+          前面十章讲的是"知识"。这一页把它串成"动作"——
+          我们用一支美股标的,完整走一遍真实券商软件里的下单流程,
+          <strong>每点一次按钮,就讲清一个知识点</strong>。全部为模拟盘,不会产生任何真实委托。
+        </p>
+      </div>
+
+      <div class="simbanner">
+        <b>⚠ 模拟盘</b>
+        <span>
+          标的 <span class="mono">NOVA</span>(诺瓦半导体)为<strong>虚构公司</strong>,
+          所有报价、期权链、成交与盈亏均为教学用模拟数据,<strong>不是真实行情</strong>。
+          但下单流程、合约规格与计算方式<strong>与美股真实平台一致</strong>(1 张 = 100 股、按 Ask 买入 / Bid 卖出、绿涨红跌)。
+        </span>
+      </div>
+
+      <h2><span class="hnum">1</span>怎么用这一页</h2>
+
+      <div class="grid grid--3">
+        <div class="card card--flat">
+          <h3 class="card__title">跟着步骤走</h3>
+          <p class="small muted" style="margin:0">
+            上方有 8 个步骤条。每完成一个动作(比如点选合约),会自动进入下一步,
+            右侧的讲解框同步更新。
+          </p>
+        </div>
+        <div class="card card--flat">
+          <h3 class="card__title">随时可自己试</h3>
+          <p class="small muted" style="margin:0">
+            整个交易台都是可点的。想提前点也行,想在"盯盘"环节反复推演行情也行。
+          </p>
+        </div>
+        <div class="card card--flat">
+          <h3 class="card__title">重点看"归因"</h3>
+          <p class="small muted" style="margin:0">
+            第 6 步会把你赚或亏的钱<strong>拆成方向、时间、波动率三份</strong>——
+            这是期权交易最核心的一课。
+          </p>
+        </div>
+      </div>
+
+      <h2><span class="hnum">2</span>交易台</h2>
+
+      <div class="panel">
+        <div class="panel__head">
+          <h3 class="panel__t">NOVA 期权模拟交易台</h3>
+          <p class="panel__hint">初始资金 <span class="mono" id="cashHint">$25,000</span> · 全部为模拟数据</p>
+        </div>
+
+        <!-- 步骤条 -->
+        <div class="steps" id="steps"></div>
+
+        <!-- 讲解框 -->
+        <div class="narrate" id="narrate" style="margin-top:14px"></div>
+
+        <!-- 步骤导航 -->
+        <div class="seg" style="margin-top:12px">
+          <button type="button" id="btnPrev">← 上一步</button>
+          <button type="button" id="btnNext">下一步 →</button>
+          <button type="button" id="btnReset">重新开始</button>
+        </div>
+
+        <!-- 标的报价 -->
+        <div class="quotebar" id="quotebar" style="margin-top:18px"></div>
+
+        <!-- 到期选择 -->
+        <div style="margin-top:16px">
+          <span class="readout__k" style="display:block;margin-bottom:8px">到期日(先选到期,再看链)</span>
+          <div class="seg" id="expSeg"></div>
+        </div>
+
+        <!-- 期权链 -->
+        <div style="margin-top:20px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:9px">
+            <span class="readout__k" style="margin:0">期权链 Option Chain</span>
+            <span class="small muted">点击任意一边的报价即可选中该合约</span>
+          </div>
+          <div class="tablewrap" style="max-height:400px;overflow:auto">
+            <table class="chaintable" id="chain"></table>
+          </div>
+          <div class="legend">
+            <span><i style="background:var(--accent-soft);border:1px solid var(--accent-line)"></i>实值 ITM 区间</span>
+            <span><i style="background:var(--gold)"></i>平值 ATM 行权价</span>
+            <span><i style="background:var(--accent)"></i>已选中合约</span>
+            <span class="muted">IV = 隐含波动率 · OI = 未平仓合约数 · Vol = 今日成交量</span>
+          </div>
+        </div>
+
+        <!-- 票据 + 持仓 -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:22px;margin-top:22px">
+          <div class="card">
+            <h3 class="card__title">下单票据 Order Ticket</h3>
+            <div class="ticket" id="ticket"></div>
+          </div>
+          <div id="posSlot"></div>
+        </div>
+
+        <!-- 市场驱动 -->
+        <div class="card card--flat" style="margin-top:22px">
+          <h3 class="card__title" style="margin-bottom:4px">行情模拟器(推动市场,观察持仓变化)</h3>
+          <p class="small muted" style="margin:0 0 14px">
+            这些按钮只改变<strong>模拟市场</strong>,不改变你的持仓。请一次只推一个变量,才能看清各因素的独立作用。
+          </p>
+
+          <div class="drv">
+            <div>
+              <span class="readout__k" style="display:block;margin-bottom:6px">① 标的价格 NOVA</span>
+              <div class="drv__b" id="drvSpot">
+                <button type="button" data-down data-pct="-0.10">−10%</button>
+                <button type="button" data-down data-pct="-0.03">−3%</button>
+                <button type="button" data-down data-pct="-0.01">−1%</button>
+                <button type="button" data-up data-pct="0.01">+1%</button>
+                <button type="button" data-up data-pct="0.03">+3%</button>
+                <button type="button" data-up data-pct="0.10">+10%</button>
+              </div>
+            </div>
+            <div>
+              <span class="readout__k" style="display:block;margin-bottom:6px">② 时间流逝(所有合约一起变老)</span>
+              <div class="drv__b" id="drvTime">
+                <button type="button" data-days="1">过 1 天</button>
+                <button type="button" data-days="7">过 7 天</button>
+                <button type="button" data-days="15">过 15 天</button>
+                <button type="button" data-days="30">过 30 天</button>
+              </div>
+            </div>
+            <div>
+              <span class="readout__k" style="display:block;margin-bottom:6px">③ 隐含波动率 IV</span>
+              <div class="drv__b" id="drvIV">
+                <button type="button" data-down data-iv="-0.10">−10 个点</button>
+                <button type="button" data-down data-iv="-0.05">−5 个点</button>
+                <button type="button" data-up data-iv="0.05">+5 个点</button>
+                <button type="button" data-up data-iv="0.10">+10 个点</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 持仓盈亏图 -->
+        <div style="margin-top:22px">
+          <span class="readout__k" style="display:block;margin-bottom:9px">持仓盈亏结构</span>
+          <div class="chartbox">
+            <canvas id="simChart" height="340" role="img" aria-label="当前持仓的到期盈亏图与浮动盈亏曲线"></canvas>
+          </div>
+          <div class="legend">
+            <span><i style="background:var(--profit)"></i>到期盈利区</span>
+            <span><i style="background:var(--loss)"></i>到期亏损区</span>
+            <span><i style="background:var(--accent)"></i>当前浮动盈亏(虚线)</span>
+            <span><i style="background:var(--ink)"></i>标的现价</span>
+          </div>
+        </div>
+
+        <!-- 盈亏归因 -->
+        <div id="attrib" style="margin-top:22px"></div>
+
+      </div>
+
+      <div class="callout callout--tip mt">
+        <span class="callout__t">建议至少试这四次推演</span>
+        ① 只按 <strong>+3%</strong> 股价 → 看 Delta 贡献了多少;<br>
+        ② 只按 <strong>过 7 天</strong>(股价不动)→ 看 Theta 怎么吃掉你的钱,这就是买方最大的敌人;<br>
+        ③ 只按 <strong>−10 个点 IV</strong>(股价不动)→ 看 Vega 的威力,这正是财报后 IV 崩塌的机制;<br>
+        ④ 重置后再买一张<strong>深度虚值</strong>期权(行权价远离现价),重复上面三步 → 体会"便宜但更容易归零"。
+      </div>
+
+      <h2><span class="hnum">3</span>三种结局对照</h2>
+
+      <p>
+        期权到期只有三种可能:赚钱、归零、或者被你提前平掉。下表会根据你当前的持仓实时计算,
+        让你在下单前就看清"最坏会怎样"。
+      </p>
+
+      <div class="tablewrap">
+        <table id="outcomeTable">
+          <thead>
+            <tr>
+              <th>到期时的情形</th>
+              <th class="num">标的价</th>
+              <th class="num">期权价值</th>
+              <th class="num">你的盈亏(每张)</th>
+              <th>含义</th>
+            </tr>
+          </thead>
+          <tbody id="outcomeBody">
+            <tr><td colspan="5" class="muted small">先完成一次买入,这里会自动计算。</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--key mt">
+        <span class="callout__t">请注意"标的不动"那一行</span>
+        很多人以为"没涨没跌"就是打平。对期权买方来说,<strong>标的不动是纯粹的亏损</strong>——
+        因为时间价值每天都在流失。这就是为什么买期权需要"涨得够快、够多",而不只是"看对方向"。
+      </div>
+
+      <h2><span class="hnum">4</span>真实平台上还需注意什么</h2>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>环节</th><th>模拟器里的简化</th><th>真实平台上的情况</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>成交价</td>
+              <td>买入按 Ask、卖出按 Bid,立即全额成交</td>
+              <td>限价单可能挂着不成交;流动性差的合约可能只有部分成交。市价单在薄盘口上会滑点</td>
+            </tr>
+            <tr>
+              <td>买卖价差</td>
+              <td>按权利金的固定比例模拟</td>
+              <td>活跃合约价差可能只有 1–2 分钱,冷门合约能到几毛钱 —— 直接决定你的进出成本</td>
+            </tr>
+            <tr>
+              <td>佣金与费用</td>
+              <td>固定 $0.65/张</td>
+              <td>各券商差异很大,可能按张收费、可能有最低消费,另有交易所规费与监管费</td>
+            </tr>
+            <tr>
+              <td>隐含波动率</td>
+              <td>用一条平滑的偏斜曲线生成</td>
+              <td>真实的波动率曲面有微笑、期限结构、事件跳变,同一时刻不同行权价差异可能很大</td>
+            </tr>
+            <tr>
+              <td>行权与交割</td>
+              <td>只展示概念</td>
+              <td>美式合约可提前行权;实值合约到期可能被自动行权;卖方会被随机指派,需备足资金或股票</td>
+            </tr>
+            <tr>
+              <td>保证金</td>
+              <td>本页只演示买方(付权利金)</td>
+              <td>卖出开仓需要保证金,并会随标的价格、波动率、剩余时间<strong>动态变化</strong>,可能触发追保与强平</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">模拟盘最危险的幻觉</span>
+        模拟器里"买入即成交、平仓即到账",会让人低估三件事:
+        <strong>滑点、流动性、以及自己在真金白银面前的情绪</strong>。
+        前两章讲过的<a href="risk.html">保证金与强平</a>、<a href="market.html">买卖价差与流动性</a>,
+        在模拟盘里几乎感受不到。请把模拟盘当成"熟悉按钮和流程"的工具,
+        而不是"验证策略能赚钱"的工具。
+      </div>
+
+      <h2><span class="hnum">5</span>小结</h2>
+
+      <div class="callout callout--key">
+        <span class="callout__t">走完这一遍,你应该能自己回答</span>
+        <ul style="margin:8px 0 0;padding-left:1.2em">
+          <li>下单前必须确认哪三个数字?(行权价、到期日、成本价)</li>
+          <li>为什么"买入按 Ask、卖出按 Bid"意味着一进场就在亏价差?</li>
+          <li>合约乘数 100 是怎么把"每股 $3.85"变成"每张 $385"的?</li>
+          <li>标的不动时,买方为什么必然亏钱?亏的是哪一部分?</li>
+          <li>一笔交易的盈亏,怎么拆成方向(Delta)、时间(Theta)、波动率(Vega)三份?</li>
+          <li>为什么模拟盘赚钱,不代表真实交易能赚钱?</li>
+        </ul>
+      </div>
+
+      <p>
+        到这里,从概念到动手的完整链条就走通了。如果你还想回看某个环节的原理,
+        可以用下面的入口回到对应章节;或者去<a href="glossary.html">术语表</a>查任何你不确定的词。
+      </p>
+
+      <p class="mt">
+        <a class="btn btn--ghost" href="payoff.html" style="display:inline-block">回看 03 到期盈亏</a>
+        <a class="btn btn--ghost" href="greeks.html" style="display:inline-block;margin-left:8px">回看 05 希腊字母</a>
+        <a class="btn btn--ghost" href="risk.html" style="display:inline-block;margin-left:8px">回看 07 风险与保证金</a>
+      </p>
+
+    </article>
+
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var MULT = 100;          // 美股标准:1 张 = 100 股
+  var COMMISSION = 0.65;   // 每张佣金(示意)
+  var RATE = 0.04;         // 无风险利率
+
+  /* ================= 市场状态(全部为模拟) ================= */
+  var SPOT0 = 185.40;
+  var EXPIRIES = [
+    { key: 'w1', label: '本周五', base: 3 },
+    { key: 'm1', label: '下月到期', base: 45 },
+    { key: 'q1', label: '季度到期', base: 108 }
+  ];
+  var STRIKES = [];
+  for (var i = -10; i <= 10; i++) STRIKES.push(185 + i * 5);   // 135 ~ 235
+
+  var M = { spot: SPOT0, iv0: 0.32, ivShift: 0, elapsed: 0 };
+
+  var sel = null;       // { type, K, expKey }
+  var selExp = 'm1';
+  var pos = null;       // 持仓
+  var cash = 25000;
+  var realized = 0;
+  var trades = 0;
+  var step = 0;
+  var orderSide = 'buy';   // 下单方向:buy / sell
+  var orderQty = 1;        // 下单数量(张)
+
+  /* ================= 工具 ================= */
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function usd(v, d) { return (v < 0 ? '-$' : '$') + Site.money(Math.abs(v), d === undefined ? 2 : d); }
+  function sgnUsd(v, d) { return (v > 0 ? '+' : v < 0 ? '-' : '') + '$' + Site.money(Math.abs(v), d === undefined ? 2 : d); }
+  function pctS(v) { return (v > 0 ? '+' : '') + (v * 100).toFixed(2) + '%'; }
+  function expOf(key) { for (var i = 0; i < EXPIRIES.length; i++) if (EXPIRIES[i].key === key) return EXPIRIES[i]; return EXPIRIES[0]; }
+  function daysLeft(key) { return Math.max(0, expOf(key).base - M.elapsed); }
+
+  /** 波动率偏斜:行权价越低 IV 越高(股票期权的典型形态) */
+  function ivFor(K) {
+    var m = K / SPOT0 - 1;
+    return clamp(M.iv0 + M.ivShift - 0.55 * m, 0.05, 3);
+  }
+
+  function intrinsic(K, type, S) {
+    return type === 'call' ? Math.max(S - K, 0) : Math.max(K - S, 0);
+  }
+
+  /** 理论价(用当前的模拟市场) */
+  function theo(K, type, days, S, ivShift) {
+    S = S === undefined ? M.spot : S;
+    var T = Math.max(0, days) / 365;
+    if (T <= 0) return intrinsic(K, type, S);
+    var sig = clamp(M.iv0 + (ivShift === undefined ? M.ivShift : ivShift) - 0.55 * (K / SPOT0 - 1), 0.05, 3);
+    return BS.price({ type: type, S: S, K: K, T: T, r: RATE, sigma: sig }).price;
+  }
+
+  function greeksOf(K, type, days, S, ivShift) {
+    S = S === undefined ? M.spot : S;
+    var T = Math.max(0, days) / 365;
+    if (T <= 0) {
+      var itm = (type === 'call' ? S > K : S < K) ? 1 : 0;
+      return { delta: (type === 'call' ? itm : -itm), gamma: 0, theta: 0, vega: 0, price: intrinsic(K, type, S) };
+    }
+    var sig = clamp(M.iv0 + (ivShift === undefined ? M.ivShift : ivShift) - 0.55 * (K / SPOT0 - 1), 0.05, 3);
+    return BS.price({ type: type, S: S, K: K, T: T, r: RATE, sigma: sig });
+  }
+
+  /** 买卖价差:按权利金比例 + 固定最小跳动模拟 */
+  function quote(K, type, days) {
+    var mid = theo(K, type, days);
+    var half = Math.max(0.025, mid * 0.011 + 0.02);
+    return {
+      mid: mid,
+      bid: Math.max(0.01, Math.round((mid - half) * 100) / 100),
+      ask: Math.round((mid + half) * 100) / 100,
+      iv: ivFor(K)
+    };
+  }
+
+  /** 确定性伪随机,保证每次刷新数据一致 */
+  function pseudo(a, b) {
+    var x = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
+  function chainStats(K, type) {
+    var dist = Math.abs(K - SPOT0);
+    var decay = Math.exp(-dist / 26);
+    var v = Math.round(pseudo(K, type === 'call' ? 1 : 2) * 3800 * decay + 15);
+    var oi = Math.round(pseudo(K, type === 'call' ? 3 : 4) * 19000 * decay + 120);
+    return { vol: v, oi: oi };
+  }
+
+  /* ================= 步骤定义 ================= */
+  var STEPS = [
+    {
+      n: 'STEP 1', t: '看标的',
+      nar: '<strong>期权是衍生品,价格跟着标的走,所以第一步永远是看标的。</strong>' +
+        'NOVA 现价 $185.40,今日 ATM 隐含波动率 32%。<br>' +
+        '重点看 <b>IV Rank(波动率分位)</b>:它表示当前 IV 在过去一年里处于什么位置。' +
+        'IV Rank 高 = 期权整体偏贵,买方要更谨慎;IV Rank 低 = 期权便宜,买方相对有利。' +
+        '<em>这解释了为什么"方向看对"不等于"能赚钱"——你买入的价格本身就已经包含了市场对波动的预期。</em>'
+    },
+    {
+      n: 'STEP 2', t: '选到期日',
+      nar: '同一只股票有多个到期日的期权。<strong>剩余时间越长,期权越贵</strong>——' +
+        '因为"未来还可能变得值钱"的机会更多。<br>' +
+        '但要注意代价:时间越长,你支付的<b>时间价值总额</b>也越大,持有期间的 Theta 损耗总量越高。' +
+        '新手最常见的错误是"专挑最便宜的短期期权",结果发现时间价值掉得飞快、几乎没有容错空间。<br>' +
+        '请点一个到期日:短期便宜但激进,长期贵但从容。'
+    },
+    {
+      n: 'STEP 3', t: '读期权链',
+      nar: '这张表就是<b>期权链(Option Chain)</b>。中间是行权价,<b style="color:var(--profit)">左边是看涨 Call</b>,<b style="color:var(--loss)">右边是看跌 Put</b>。<br>' +
+        '四个必看字段:<br>' +
+        '· <b>Bid / Ask</b> — 买价与卖价。两者的差就是<b>买卖价差</b>,是你一进一出必然付出的成本。<br>' +
+        '· <b>IV</b> — 该合约的隐含波动率。注意行权价越低 IV 越高,这叫<b>波动率偏斜(Skew)</b>。<br>' +
+        '· <b>Vol / OI</b> — 今日成交量与未平仓合约数,代表<b>流动性</b>,直接决定你的价差成本。<br>' +
+        '蓝色底纹区域是<b>实值 ITM</b>(立刻行权有内在价值),金色标记那一行是<b>平值 ATM</b>。<br>' +
+        '现在请点选一个报价——建议先试平值附近的看涨期权。'
+    },
+    {
+      n: 'STEP 4', t: '下单',
+      nar: '选中合约后,右侧自动生成了<b>下单票据</b>。请看清三个数字:<br>' +
+        '① 权利金是<b>每股</b>报价;② 1 张 = <b>100 股</b>,所以实际成本 = 权利金 × 100;' +
+        '③ 再加上佣金,才是你真正付出的钱。<br>' +
+        '注意成交价:<b>买入按 Ask、卖出按 Bid</b>。也就是说,你刚成交的那一刻,' +
+        '按中间价计算就已经浮亏了半个价差——<b>交易成本是立刻发生的,不是等到平仓才产生</b>。<br>' +
+        '选好数量后点"确认下单"。'
+    },
+    {
+      n: 'STEP 5', t: '成交确认',
+      nar: '成交了。持仓卡里记录了你的<b>成本基础、行权价、到期日</b>——这三个数字决定了你的盈亏平衡点' +
+        '(看涨 = 行权价 + 成本价;看跌 = 行权价 − 成本价)。<br>' +
+        '<em>请特别注意:盈亏平衡点几乎总是比现价更"远"。</em>' +
+        '这意味着你光判断对方向还不够,标的必须走得足够远,你才开始真正赚钱。<br>' +
+        '下一步进入最有教学价值的环节:推动行情,看你的持仓怎么变。'
+    },
+    {
+      n: 'STEP 6', t: '盯盘与归因',
+      nar: '<strong>这是全页最重要的一步。</strong>用下面的"行情模拟器"推动市场,一次只动一个变量:<br>' +
+        '· 只动<b>股价</b> → 看 <b>Delta</b> 贡献了多少盈亏;<br>' +
+        '· 只动<b>时间</b> → 看 <b>Theta</b> 怎么每天吃掉你的钱(即使股价纹丝不动);<br>' +
+        '· 只动<b>IV</b> → 看 <b>Vega</b> 的威力,这就是财报后 IV 崩塌的机制。<br>' +
+        '下面的<b>盈亏归因</b>面板会把总盈亏精确拆成这三份。' +
+        '<em>看懂这张表,你就从"猜方向"进阶到"管理风险敞口"了。</em>'
+    },
+    {
+      n: 'STEP 7', t: '平仓 / 到期',
+      nar: '平仓时你会再一次撞上买卖价差:<b>卖出按 Bid 成交</b>,比中间价低一点,' +
+        '加上开仓时多付的那部分,<b>一个来回就是两次价差成本</b>。<br>' +
+        '你也可以选择"持有到到期"——那就要面对到期结算:要么变成内在价值,要么直接归零。<br>' +
+        '建议先按"平仓"看一次实际落袋金额,再重置后按"持有到到期"看一次归零的过程,两者对比会很有冲击力。'
+    },
+    {
+      n: 'STEP 8', t: '复盘',
+      nar: '一次完整的期权交易走完了:<b>看标的 → 选到期 → 读链 → 选合约 → 下单 → 盯盘 → 平仓</b>。<br>' +
+        '回顾一下你会发现:决定最终结果的<strong>不是"方向"这一个变量</strong>,' +
+        '而是<b>方向 + 时间 + 波动率</b>三者的合力。' +
+        '期权买方在方向上占优,却在时间和波动率上先天不利——这就是为什么期权比股票难。<br>' +
+        '想继续练,直接点"重新开始",或试试买入看跌、买入深度虚值,感受完全不同的风险结构。'
+    }
+  ];
+
+  /* ================= 渲染 ================= */
+  var $ = function (id) { return document.getElementById(id); };
+
+  function renderSteps() {
+    $('steps').innerHTML = STEPS.map(function (s, i) {
+      var cls = i < step ? 'done' : i === step ? 'now' : '';
+      return '<div class="steps__i ' + cls + '"><b>' + s.n + '</b>' + s.t + '</div>';
+    }).join('');
+  }
+
+  function renderNarrate() {
+    var s = STEPS[step];
+    $('narrate').innerHTML = '<span class="narrate__t">' + s.n + ' · ' + s.t + '</span>' + s.nar;
+  }
+
+  function renderQuote() {
+    var chg = M.spot - SPOT0;
+    var chgPct = chg / SPOT0;
+    var cls = chg > 0 ? 'pos' : chg < 0 ? 'neg' : 'muted';
+    var arrow = chg > 0 ? '▲' : chg < 0 ? '▼' : '—';
+    var ivNow = M.iv0 + M.ivShift;
+    $('quotebar').innerHTML =
+      '<div>' +
+        '<span class="quotebar__sym">NOVA</span>' +
+        '<span class="quotebar__name">诺瓦半导体 · 模拟标的</span>' +
+      '</div>' +
+      '<div>' +
+        '<div class="quotebar__px ' + cls + '">' + usd(M.spot) + '</div>' +
+        '<div class="quotebar__chg ' + cls + '">' + arrow + ' ' + (chg >= 0 ? '+' : '') + chg.toFixed(2) +
+          ' (' + pctS(chgPct) + ')</div>' +
+      '</div>' +
+      '<div class="quotebar__meta">' +
+        '<div class="quotebar__m"><span class="quotebar__mk">ATM IV</span><span class="quotebar__mv">' +
+          (ivNow * 100).toFixed(1) + '%</span></div>' +
+        '<div class="quotebar__m"><span class="quotebar__mk">IV Rank</span><span class="quotebar__mv">' +
+          clamp(Math.round((ivNow - 0.15) / 0.45 * 100), 1, 99) + '%</span></div>' +
+        '<div class="quotebar__m"><span class="quotebar__mk">已流逝</span><span class="quotebar__mv">' +
+          M.elapsed + ' 天</span></div>' +
+        '<div class="quotebar__m"><span class="quotebar__mk">可用资金</span><span class="quotebar__mv">' +
+          usd(cash, 0) + '</span></div>' +
+      '</div>';
+    $('cashHint').textContent = usd(cash, 0);
+  }
+
+  function renderExpiries() {
+    $('expSeg').innerHTML = EXPIRIES.map(function (e) {
+      var d = daysLeft(e.key);
+      var dis = d <= 0 ? ' disabled' : '';
+      return '<button type="button" data-val="' + e.key + '"' +
+        (selExp === e.key ? ' aria-pressed="true"' : ' aria-pressed="false"') + dis + '>' +
+        e.label + ' <span class="mono muted">(' + d + '天)</span></button>';
+    }).join('');
+  }
+
+  function renderChain() {
+    var days = daysLeft(selExp);
+    var head =
+      '<thead><tr>' +
+      '<th colspan="6" class="side side--call">看涨 CALLS</th>' +
+      '<th class="side">行权价</th>' +
+      '<th colspan="6" class="side side--put">看跌 PUTS</th>' +
+      '</tr><tr>' +
+      '<th>OI</th><th>Vol</th><th>IV</th><th>Bid</th><th>Ask</th><th>Delta</th>' +
+      '<th class="side">Strike</th>' +
+      '<th>Delta</th><th>Bid</th><th>Ask</th><th>IV</th><th>Vol</th><th>OI</th>' +
+      '</tr></thead>';
+
+    var atmK = STRIKES.reduce(function (a, b) {
+      return Math.abs(b - M.spot) < Math.abs(a - M.spot) ? b : a;
+    }, STRIKES[0]);
+
+    var rows = STRIKES.map(function (K) {
+      var cq = quote(K, 'call', days), pq = quote(K, 'put', days);
+      var cg = greeksOf(K, 'call', days), pg = greeksOf(K, 'put', days);
+      var cs = chainStats(K, 'call'), ps = chainStats(K, 'put');
+      var itmCall = K < M.spot, itmPut = K > M.spot;
+      var cls = (itmCall ? 'itm-call ' : '') + (itmPut ? 'itm-put ' : '') +
+        (sel && sel.K === K && sel.type === 'call' ? 'sel-call ' : '') +
+        (sel && sel.K === K && sel.type === 'put' ? 'sel-put ' : '') +
+        (K === atmK ? 'atm' : '');
+      function cell(side, html) {
+        return '<td class="pick" data-side="' + side + '" data-k="' + K + '">' + html + '</td>';
+      }
+      return '<tr class="' + cls + '">' +
+        cell('call', Site.money(cs.oi, 0)) + cell('call', Site.money(cs.vol, 0)) +
+        cell('call', (cq.iv * 100).toFixed(1) + '%') +
+        cell('call', cq.bid.toFixed(2)) + cell('call', cq.ask.toFixed(2)) +
+        cell('call', cg.delta.toFixed(3)) +
+        '<td class="strike">' + K + '</td>' +
+        cell('put', pg.delta.toFixed(3)) +
+        cell('put', pq.bid.toFixed(2)) + cell('put', pq.ask.toFixed(2)) +
+        cell('put', (pq.iv * 100).toFixed(1) + '%') +
+        cell('put', Site.money(ps.vol, 0)) + cell('put', Site.money(ps.oi, 0)) +
+        '</tr>';
+    }).join('');
+
+    $('chain').innerHTML = head + '<tbody>' + rows + '</tbody>';
+  }
+
+  function renderTicket() {
+    var days = daysLeft(selExp);
+    var side = orderSide;
+
+    if (!sel) {
+      $('ticket').innerHTML = '<p class="small muted" style="margin:0">' +
+        '请先在上方<b>期权链</b>中点选一个合约。<br><br>' +
+        '选择时会自动带入该合约的实时报价、隐含波动率与 Delta。' +
+        (days <= 0 ? '<br><br><b style="color:var(--loss)">该到期日已到期,请换一个到期日。</b>' : '') +
+        '</p>';
+      return;
+    }
+
+    var q = quote(sel.K, sel.type, days);
+    var g = greeksOf(sel.K, sel.type, days);
+
+    $('ticket').innerHTML =
+      '<div class="ticket__row"><span class="ticket__k">合约</span>' +
+        '<span class="ticket__v">NOVA ' + (sel.type === 'call' ? 'CALL' : 'PUT') + ' $' + sel.K + '</span></div>' +
+      '<div class="ticket__row"><span class="ticket__k">到期</span>' +
+        '<span class="ticket__v">' + expOf(selExp).label + ' · ' + days + ' 天</span></div>' +
+      '<div class="ticket__row"><span class="ticket__k">报价 Bid / Ask</span>' +
+        '<span class="ticket__v" id="tkBidAsk">—</span></div>' +
+      '<div class="ticket__row"><span class="ticket__k">买卖价差</span>' +
+        '<span class="ticket__v" id="tkSpread" style="color:var(--warn)">—</span></div>' +
+      '<div class="ticket__row"><span class="ticket__k">隐含波动率 IV</span>' +
+        '<span class="ticket__v">' + (q.iv * 100).toFixed(1) + '%</span></div>' +
+      '<div class="ticket__row"><span class="ticket__k">Delta</span>' +
+        '<span class="ticket__v">' + g.delta.toFixed(3) + '</span></div>' +
+      '<div class="ticket__row"><span class="ticket__k">盈亏平衡点</span>' +
+        '<span class="ticket__v" id="tkBreakeven">—</span></div>' +
+
+      '<div class="field" style="margin-top:6px">' +
+        '<label>方向</label>' +
+        '<div class="seg" id="sideSeg">' +
+          '<button type="button" data-val="buy"' + (side === 'buy' ? ' aria-pressed="true"' : ' aria-pressed="false"') + '>买入开仓</button>' +
+          '<button type="button" data-val="sell"' + (side === 'sell' ? ' aria-pressed="true"' : ' aria-pressed="false"') + '>卖出开仓</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="field">' +
+        '<label>数量 <span class="field__val" id="tkQtyLabel">—</span></label>' +
+        '<input type="range" id="qtyInput" min="1" max="10" step="1" value="' + orderQty + '">' +
+      '</div>' +
+
+      '<div class="ticket__row"><span class="ticket__k" id="tkExecLabel">成交价</span>' +
+        '<span class="ticket__v" id="tkExec">—</span></div>' +
+      '<div class="ticket__row"><span class="ticket__k">权利金金额</span>' +
+        '<span class="ticket__v" id="tkGross">—</span></div>' +
+      '<div class="ticket__row"><span class="ticket__k">佣金(示意 $0.65/张)</span>' +
+        '<span class="ticket__v" id="tkComm">—</span></div>' +
+      '<div class="ticket__total"><span id="tkTotalLabel">需支付</span>' +
+        '<b id="tkTotal">—</b></div>' +
+
+      '<button type="button" class="btn" id="btnOrder" style="width:100%;margin-top:10px">确认下单</button>' +
+      '<p class="small muted" id="tkWarn" style="margin:6px 0 0;display:none">' +
+        '注:此处演示的是<b>备兑/已有持仓</b>情形下的卖出。裸卖需要保证金,风险远超权利金,详见第 07 章。</p>';
+
+    // 事件只绑定一次;输入变化走 updateTicket 局部刷新,绝不重建票据(否则递归)
+    Site.bindSeg('sideSeg', function (v) { orderSide = v; updateTicket(); }, side);
+    var qi = $('qtyInput');
+    if (qi) {
+      qi.addEventListener('input', function () {
+        orderQty = parseInt(qi.value, 10) || 1;
+        updateTicket();
+      });
+    }
+    var ob = $('btnOrder');
+    if (ob) ob.addEventListener('click', placeOrder);
+
+    updateTicket();
+  }
+
+  /** 局部刷新票据上的数字,不重建 DOM */
+  function updateTicket() {
+    if (!sel) return;
+    var days = daysLeft(selExp);
+    var qty = orderQty;
+    var side = orderSide;
+    var q = quote(sel.K, sel.type, days);
+    var exec = side === 'buy' ? q.ask : q.bid;
+    var gross = exec * MULT * qty;
+    var comm = COMMISSION * qty;
+    var total = side === 'buy' ? gross + comm : gross - comm;
+    var canAfford = side === 'buy' ? (gross + comm) <= cash : true;
+    var breakeven = sel.type === 'call' ? sel.K + exec : sel.K - exec;
+
+    function put(id, txt) { var e = $(id); if (e) e.textContent = txt; }
+
+    put('tkBidAsk', q.bid.toFixed(2) + ' / ' + q.ask.toFixed(2));
+    put('tkSpread', (q.ask - q.bid).toFixed(2) + ' (' + ((q.ask - q.bid) / q.mid * 100).toFixed(1) + '%)');
+    put('tkBreakeven', '$' + breakeven.toFixed(2));
+    put('tkQtyLabel', qty + ' 张 = ' + (qty * MULT) + ' 股');
+    put('tkExecLabel', '成交价(' + (side === 'buy' ? '按 Ask' : '按 Bid') + ')');
+    put('tkExec', '$' + exec.toFixed(2) + ' × ' + MULT + ' × ' + qty);
+    put('tkGross', usd(gross));
+    put('tkComm', usd(comm));
+    put('tkTotalLabel', side === 'buy' ? '需支付' : '可收到');
+
+    var tv = $('tkTotal');
+    if (tv) {
+      tv.textContent = usd(total);
+      tv.style.color = side === 'buy' ? 'var(--loss)' : 'var(--profit)';
+    }
+
+    var warn = $('tkWarn');
+    if (warn) warn.style.display = side === 'sell' ? '' : 'none';
+
+    var ob = $('btnOrder');
+    if (ob) {
+      if (pos) {
+        ob.disabled = true;
+        ob.textContent = '已有持仓,请先平仓';
+      } else if (!canAfford) {
+        ob.disabled = true;
+        ob.textContent = '资金不足(需 ' + usd(gross + comm, 0) + ')';
+      } else {
+        ob.disabled = false;
+        ob.textContent = side === 'buy' ? '确认买入开仓' : '确认卖出开仓';
+      }
+    }
+  }
+
+  function renderPosition() {
+    var box = $('posSlot');
+
+    if (!pos) {
+      box.innerHTML = '<div class="poscard poscard--empty">' +
+        '<div>尚无持仓<br><span class="small">在期权链中点选合约 → 下单</span></div></div>';
+      $('attrib').innerHTML = '';
+      return;
+    }
+
+    var days = daysLeft(pos.expKey);
+    var expired = days <= 0;
+    var cur = expired ? intrinsic(pos.K, pos.type, M.spot) : theo(pos.K, pos.type, days);
+    var perShare = pos.dir === 1 ? (cur - pos.premium) : (pos.premium - cur);
+    var pl = perShare * MULT * pos.qty;
+    var cost = pos.premium * MULT * pos.qty;
+    var retPct = cost > 0 ? pl / cost : 0;
+    var g = greeksOf(pos.K, pos.type, expired ? 0 : days);
+    var d = pos.dir;
+    var plCls = pl > 0 ? 'up' : pl < 0 ? 'down' : 'flat';
+
+    box.innerHTML =
+      '<div class="poscard">' +
+        '<div class="poscard__t">' +
+          '<b>当前持仓</b>' +
+          '<span class="tag ' + (d === 1 ? 'tag--long' : 'tag--short') + '">' +
+            (d === 1 ? '买入' : '卖出') + ' ' + pos.qty + ' 张</span>' +
+        '</div>' +
+        '<div class="mono" style="font-size:14.4px;margin-bottom:10px">' +
+          'NOVA ' + (pos.type === 'call' ? 'CALL' : 'PUT') + ' $' + pos.K +
+          ' · ' + expOf(pos.expKey).label +
+          ' <span class="muted">(' + (expired ? '已到期' : days + ' 天') + ')</span>' +
+        '</div>' +
+
+        '<div class="plbig plbig--' + plCls + '">' +
+          '<span class="plbig__k">浮动盈亏</span>' +
+          '<span class="plbig__v" style="color:' + (pl > 0 ? 'var(--profit)' : pl < 0 ? 'var(--loss)' : 'var(--ink)') + '">' +
+            sgnUsd(pl) + '</span>' +
+          '<span class="plbig__u">' + pctS(retPct) + '</span>' +
+        '</div>' +
+
+        '<div class="ticket">' +
+          '<div class="ticket__row"><span class="ticket__k">开仓成本价</span><span class="ticket__v">$' + pos.premium.toFixed(2) + '</span></div>' +
+          '<div class="ticket__row"><span class="ticket__k">当前理论价</span><span class="ticket__v">$' + cur.toFixed(2) + '</span></div>' +
+          '<div class="ticket__row"><span class="ticket__k">投入本金</span><span class="ticket__v">' + usd(cost) + '</span></div>' +
+          '<div class="ticket__row"><span class="ticket__k">盈亏平衡点</span><span class="ticket__v">$' +
+            (pos.type === 'call' ? (pos.K + pos.premium) : (pos.K - pos.premium)).toFixed(2) + '</span></div>' +
+          '<div class="ticket__row"><span class="ticket__k">仓位 Delta</span><span class="ticket__v">' +
+            (g.delta * d * pos.qty * MULT).toFixed(1) + ' 股</span></div>' +
+        '</div>' +
+
+        '<div class="seg" style="margin-top:12px">' +
+          '<button type="button" class="btn" id="btnClose"' + (expired ? ' disabled' : '') + '>平仓了结</button>' +
+          '<button type="button" class="btn btn--ghost" id="btnExpire"' + (expired ? ' disabled' : '') + '>持有到到期</button>' +
+        '</div>' +
+      '</div>';
+
+    var bc = $('btnClose'); if (bc && !expired) bc.addEventListener('click', closePosition);
+    var be = $('btnExpire'); if (be && !expired) be.addEventListener('click', jumpToExpiry);
+
+    renderAttribution();
+    renderOutcomes();
+    renderChart();
+  }
+
+  /** 盈亏归因:精确拆成 Delta / Theta / Vega 三份(顺序分解,合计 = 总盈亏) */
+  function renderAttribution() {
+    if (!pos) { $('attrib').innerHTML = ''; return; }
+
+    var T0 = pos.days, S0 = pos.entrySpot, IV0 = pos.entryIV;
+    var days = daysLeft(pos.expKey);
+    var T1 = days, S1 = M.spot, IV1 = M.ivShift;
+
+    var v00 = theo(pos.K, pos.type, T0, S0, IV0);          // 入场时
+    var vDelta = theo(pos.K, pos.type, T0, S1, IV0);       // 只动股价
+    var vTheta = theo(pos.K, pos.type, T1, S1, IV0);       // 再动时间
+    var vVega = theo(pos.K, pos.type, T1, S1, IV1);        // 再动波动率
+
+    var k = MULT * pos.qty * pos.dir;
+    var dD = (vDelta - v00) * k;
+    var dT = (vTheta - vDelta) * k;
+    var dV = (vVega - vTheta) * k;
+    var tot = (vVega - v00) * k;
+
+    function row(name, val, hint) {
+      var c = val > 0 ? 'pos' : val < 0 ? 'neg' : 'muted';
+      return '<tr><td>' + name + '<br><span class="small muted">' + hint + '</span></td>' +
+        '<td class="num ' + c + '">' + sgnUsd(val) + '</td></tr>';
+    }
+
+    $('attrib').innerHTML =
+      '<div class="card card--flat">' +
+        '<h3 class="card__title">盈亏归因:你的钱是怎么赚到 / 亏掉的</h3>' +
+        '<p class="small muted" style="margin:0 0 12px">' +
+          '把市场变化按「先股价 → 再时间 → 后波动率」的顺序逐步代入定价模型,' +
+          '每一段的价格差就是该因素的净贡献。<b>三项之和恰好等于你的总盈亏。</b>' +
+        '</p>' +
+        '<div class="tablewrap"><table style="min-width:auto"><tbody>' +
+          row('方向 · Delta', dD, '股价 ' + usd(S0) + ' → ' + usd(S1)) +
+          row('时间 · Theta', dT, '剩余 ' + T0 + ' 天 → ' + T1 + ' 天') +
+          row('波动率 · Vega', dV, 'IV ' + ((M.iv0 + IV0) * 100).toFixed(1) + '% → ' + ((M.iv0 + IV1) * 100).toFixed(1) + '%') +
+          '<tr style="font-weight:800"><td>合计</td><td class="num ' + (tot > 0 ? 'pos' : tot < 0 ? 'neg' : 'muted') + '">' +
+            sgnUsd(tot) + '</td></tr>' +
+        '</tbody></table></div>' +
+        '<p class="small muted" style="margin:12px 0 0" id="attrVerdict"></p>' +
+      '</div>';
+
+    // 一句话结论
+    var parts = [];
+    if (Math.abs(dD) > 1) parts.push('方向' + (dD > 0 ? '赚' : '亏') + usd(Math.abs(dD)));
+    if (Math.abs(dT) > 1) parts.push('时间' + (dT > 0 ? '赚' : '亏') + usd(Math.abs(dT)));
+    if (Math.abs(dV) > 1) parts.push('波动率' + (dV > 0 ? '赚' : '亏') + usd(Math.abs(dV)));
+    var verdict = parts.length
+      ? '这笔持仓目前主要靠 <b>' + parts.join('、') + '</b>。' +
+        (dT < -1 ? '注意时间这一项是<b>持续单向</b>的:只要不平仓,它每天都会继续扣你的钱。' : '')
+      : '市场还没有明显变化,先推动下面的行情模拟器试试。';
+    var av = $('attrVerdict');
+    if (av) av.innerHTML = verdict;
+  }
+
+  /** 三种结局对照表 */
+  function renderOutcomes() {
+    var body = $('outcomeBody');
+    if (!pos) {
+      body.innerHTML = '<tr><td colspan="5" class="muted small">先完成一次买入,这里会自动计算。</td></tr>';
+      return;
+    }
+    var scenarios = [
+      { label: '大涨 +10%', mult: 1.10, note: '方向看对且幅度足够,期权大幅增值' },
+      { label: '小涨 +3%', mult: 1.03, note: '方向对但幅度不够,可能仍不赚钱' },
+      { label: '一动不动', mult: 1.00, note: '买方纯粹被时间价值损耗' },
+      { label: '小跌 −3%', mult: 0.97, note: '方向看错,Delta 与 Theta 同时亏' },
+      { label: '大跌 −10%', mult: 0.90, note: '看涨期权大概率归零' }
+    ];
+    body.innerHTML = scenarios.map(function (sc) {
+      var ST = M.spot * sc.mult;
+      var val = intrinsic(pos.K, pos.type, ST);
+      // 买方:期权价值 − 成本;卖方:成本 − 期权价值
+      var per = pos.dir === 1 ? (val - pos.premium) : (pos.premium - val);
+      var pl = per * MULT * pos.qty;
+      var cls = pl > 0 ? 'pos' : pl < 0 ? 'neg' : 'muted';
+      return '<tr>' +
+        '<td>' + sc.label + '</td>' +
+        '<td class="num">' + usd(ST) + '</td>' +
+        '<td class="num">$' + val.toFixed(2) + '</td>' +
+        '<td class="num ' + cls + '">' + sgnUsd(pl) + '</td>' +
+        '<td class="small muted">' + sc.note + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  function renderChart() {
+    var cv = $('simChart');
+    if (!cv) return;
+    if (!pos) {
+      Charts.lines(cv, {
+        height: 340,
+        series: [{ name: '', color: Charts.PALETTE.ink4, points: [[SPOT0 * 0.8, 0], [SPOT0 * 1.2, 0]], width: 1, dash: [4, 4] }],
+        xLabel: '到期时 NOVA 股价', yLabel: '每张盈亏',
+        xLo: SPOT0 * 0.8, xHi: SPOT0 * 1.2, yLo: -500, yHi: 500, includeZero: true
+      });
+      return;
+    }
+    var legs = [{ kind: pos.type, dir: pos.dir, K: pos.K, premium: pos.premium, qty: pos.qty }];
+    var days = daysLeft(pos.expKey);
+    Charts.payoff(cv, {
+      legs: legs,
+      spot: M.spot,
+      lo: Math.round(SPOT0 * 0.78),
+      hi: Math.round(SPOT0 * 1.22),
+      height: 340,
+      showNow: days > 0,
+      remainingT: Math.max(0, days) / 365,
+      r: RATE,
+      sigma: ivFor(pos.K)
+    });
+  }
+
+  /* ================= 行为 ================= */
+
+  function selectContract(type, K) {
+    if (daysLeft(selExp) <= 0) return;
+    sel = { type: type, K: K, expKey: selExp };
+    // 操作引导:读到链 → 直接进入下单
+    if (step < 3) step = 3;
+    renderAll();
+  }
+
+  function placeOrder() {
+    if (!sel || pos) return;
+    var days = daysLeft(selExp);
+    var q = quote(sel.K, sel.type, days);
+    var side = orderSide;
+    var qty = orderQty;
+    var exec = side === 'buy' ? q.ask : q.bid;
+    var gross = exec * MULT * qty;
+    var comm = COMMISSION * qty;
+
+    if (side === 'buy' && gross + comm > cash) return;
+    cash += side === 'buy' ? -(gross + comm) : (gross - comm);
+    trades++;
+
+    pos = {
+      type: sel.type, dir: side === 'buy' ? 1 : -1, K: sel.K,
+      expKey: selExp, days: days, premium: exec, qty: qty,
+      entrySpot: M.spot, entryIV: M.ivShift
+    };
+    step = 4;
+    renderAll();
+
+    // 成交回执
+    var slot = $('posSlot');
+    var rc = document.createElement('div');
+    rc.className = 'receipt';
+    rc.style.marginTop = '12px';
+    rc.innerHTML = '<b>✓ 已成交</b> —— ' + (side === 'buy' ? '买入' : '卖出') + ' ' + qty + ' 张 NOVA ' +
+      (pos.type === 'call' ? 'CALL' : 'PUT') + ' $' + pos.K + ' @ $' + exec.toFixed(2) +
+      ' · 权利金 ' + usd(gross) + ' + 佣金 ' + usd(comm) +
+      ' = <b>' + usd(gross + comm) + '</b>';
+    slot.appendChild(rc);
+  }
+
+  function driveSpot(pct) {
+    M.spot = Math.max(5, Math.round(M.spot * (1 + pct) * 100) / 100);
+    if (step < 5) step = 5;
+    renderAll();
+  }
+
+  function passDays(n) {
+    M.elapsed += n;
+    if (pos) {
+      var dl = daysLeft(pos.expKey);
+      if (dl <= 0) settleExpiry();
+    }
+    renderAll();
+    if (step < 5) { step = 5; renderSteps(); renderNarrate(); }
+  }
+
+  function changeIV(delta) {
+    M.ivShift = Math.round((M.ivShift + delta) * 1000) / 1000;
+    if (M.iv0 + M.ivShift < 0.05) M.ivShift = 0.05 - M.iv0;
+    renderAll();
+    if (step < 5) { step = 5; renderSteps(); renderNarrate(); }
+  }
+
+  function closePosition() {
+    if (!pos) return;
+    var days = daysLeft(pos.expKey);
+    var q = quote(pos.K, pos.type, days);
+    // 平仓:买入的持仓按 Bid 卖出;卖出的持仓按 Ask 买回
+    // 平仓要再撞一次价差:多头按 Bid 卖出,空头按 Ask 买回
+    var exit = pos.dir === 1 ? q.bid : q.ask;
+    var qty = pos.qty, notional = MULT * qty;
+    var comm = COMMISSION * qty;
+    // 用现金流口径:开仓流 + 平仓流 = 总盈亏(佣金符号自动正确)
+    var entryFlow = pos.dir === 1
+      ? -(pos.premium * notional + comm)
+      : (pos.premium * notional - comm);
+    var exitFlow = pos.dir === 1
+      ? (exit * notional - comm)
+      : -(exit * notional + comm);
+    var pl = entryFlow + exitFlow;
+
+    cash += exitFlow;
+    realized += pl;
+    var summary = {
+      pl: pl, exit: exit, entry: pos.premium, K: pos.K, type: pos.type,
+      qty: pos.qty, days: pos.days, dir: pos.dir
+    };
+    pos = null;
+    trades++;
+    renderAll();
+    showSettlement(summary, '平仓');
+    step = 6;
+    renderSteps(); renderNarrate();
+  }
+
+  function jumpToExpiry() {
+    if (!pos) return;
+    M.elapsed += daysLeft(pos.expKey);
+    settleExpiry();
+  }
+
+  function settleExpiry() {
+    if (!pos) return;
+    // 到期按内在价值结算,不再有平仓佣金
+    var val = intrinsic(pos.K, pos.type, M.spot);
+    var qty = pos.qty, notional = MULT * qty;
+    var comm = COMMISSION * qty;
+    var entryFlow = pos.dir === 1
+      ? -(pos.premium * notional + comm)
+      : (pos.premium * notional - comm);
+    var exitFlow = pos.dir === 1 ? (val * notional) : -(val * notional);
+    var pl = entryFlow + exitFlow;
+
+    cash += exitFlow;
+    realized += pl;
+    var summary = {
+      pl: pl, exit: val, entry: pos.premium, K: pos.K, type: pos.type,
+      qty: pos.qty, days: pos.days, dir: pos.dir, expired: true
+    };
+    pos = null;
+    sel = null;
+    renderAll();
+    showSettlement(summary, '到期结算');
+    step = 6;
+    renderSteps(); renderNarrate();
+  }
+
+  function showSettlement(sm, kind) {
+    var slot = $('posSlot');
+    var cls = sm.pl > 0 ? 'var(--profit)' : sm.pl < 0 ? 'var(--loss)' : 'var(--ink)';
+    var zone = sm.pl > 0 ? 'plbig--up' : sm.pl < 0 ? 'plbig--down' : 'plbig--flat';
+    slot.innerHTML =
+      '<div class="poscard">' +
+        '<div class="poscard__t"><b>' + kind + '结果</b>' +
+          '<span class="tag tag--key">已了结</span></div>' +
+        '<div class="plbig ' + zone + '">' +
+          '<span class="plbig__k">实际盈亏</span>' +
+          '<span class="plbig__v" style="color:' + cls + '">' + sgnUsd(sm.pl) + '</span>' +
+          '<span class="plbig__u">' + (sm.dir === 1 ? '买入' : '卖出') + ' ' + sm.qty + ' 张</span>' +
+        '</div>' +
+        '<div class="ticket">' +
+          '<div class="ticket__row"><span class="ticket__k">开仓价 → 了结价</span><span class="ticket__v">$' +
+            sm.entry.toFixed(2) + ' → $' + sm.exit.toFixed(2) + '</span></div>' +
+          '<div class="ticket__row"><span class="ticket__k">持有天数</span><span class="ticket__v">' +
+            Math.min(sm.days, M.elapsed) + ' 天</span></div>' +
+          '<div class="ticket__row"><span class="ticket__k">账户可用资金</span><span class="ticket__v">' +
+            usd(cash, 0) + '</span></div>' +
+          '<div class="ticket__row"><span class="ticket__k">累计已实现盈亏</span><span class="ticket__v" style="color:' +
+            (realized > 0 ? 'var(--profit)' : realized < 0 ? 'var(--loss)' : 'var(--ink)') + '">' +
+            sgnUsd(realized) + '</span></div>' +
+        '</div>' +
+        '<p class="small muted" style="margin:12px 0 0">' +
+          (kind === '平仓'
+            ? '注意:这次平仓你付了<b>两次买卖价差</b>(开仓时多付、平仓时少收)加两次佣金,这就是"来回一次"的真实成本。'
+            : (sm.pl < 0
+              ? '到期归零:期权已无内在价值,权利金<b>100% 损失</b>。这是买方最常见的结局,不是小概率事件。'
+              : '到期实值:期权按内在价值结算,你可以选择行权或由券商自动处理。')) +
+        '</p>' +
+      '</div>';
+    $('attrib').innerHTML = '';
+    renderChartEmpty();
+  }
+
+  function renderChartEmpty() {
+    var cv = $('simChart');
+    if (!cv) return;
+    Charts.lines(cv, {
+      height: 340,
+      series: [{ name: '', color: Charts.PALETTE.ink4, points: [[SPOT0 * 0.8, 0], [SPOT0 * 1.2, 0]], width: 1, dash: [4, 4] }],
+      xLabel: '到期时 NOVA 股价', yLabel: '每张盈亏',
+      xLo: SPOT0 * 0.8, xHi: SPOT0 * 1.2, yLo: -500, yHi: 500, includeZero: true
+    });
+  }
+
+  function resetAll() {
+    M = { spot: SPOT0, iv0: 0.32, ivShift: 0, elapsed: 0 };
+    sel = null; selExp = 'm1'; pos = null; cash = 25000; realized = 0; trades = 0; step = 0;
+    orderSide = 'buy'; orderQty = 1;
+    renderAll();
+  }
+
+  function renderAll() {
+    renderSteps();
+    renderNarrate();
+    renderQuote();
+    renderExpiries();
+    renderChain();
+    renderTicket();
+    renderPosition();
+    renderOutcomes();
+  }
+
+  /* ================= 事件绑定 ================= */
+  $('expSeg').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b || b.disabled) return;
+    selExp = b.getAttribute('data-val');
+    sel = null;
+    if (step < 2) step = 2;
+    renderAll();
+  });
+
+  $('chain').addEventListener('click', function (e) {
+    var td = e.target.closest('td.pick');
+    if (!td) return;
+    selectContract(td.getAttribute('data-side'), parseInt(td.getAttribute('data-k'), 10));
+  });
+
+  $('drvSpot').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    driveSpot(parseFloat(b.getAttribute('data-pct')));
+  });
+  $('drvTime').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    passDays(parseInt(b.getAttribute('data-days'), 10));
+  });
+  $('drvIV').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    changeIV(parseFloat(b.getAttribute('data-iv')));
+  });
+
+  $('btnPrev').addEventListener('click', function () {
+    step = Math.max(0, step - 1); renderSteps(); renderNarrate();
+  });
+  $('btnNext').addEventListener('click', function () {
+    step = Math.min(STEPS.length - 1, step + 1); renderSteps(); renderNarrate();
+  });
+  $('btnReset').addEventListener('click', resetAll);
+
+  renderAll();
+})();
+</script>
+</body>
+</html>

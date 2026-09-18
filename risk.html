@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>风险与保证金 — 期权百科</title>
+<meta name="description" content="讲清期权买方的四种亏钱方式、卖方裸卖的风险、保证金与追保强平机制,以及到期日、流动性与波动率带来的额外风险。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">第 07 章 · 先想亏钱</p>
+        <h1>风险、保证金与强制平仓</h1>
+        <p class="lede">买方亏损封顶,却常常全亏;卖方收入封顶,却可能巨亏。本章用示意数字讲清亏钱的具体路径,以及保证金、追保与强平的规则边界。</p>
+      </div>
+
+      <h2><span class="hnum">1</span>先看清:买卖双方的风险完全不对称</h2>
+
+      <p>看涨期权(Call)是按约定价格买入的权利,看跌期权(Put)是按约定价格卖出的权利;约定价格叫行权价(Strike Price),付出的钱叫权利金(Premium)。</p>
+
+      <p>买方最坏的结果在买入时就写死了:最多亏光权利金,不必再补钱;卖方最好的结果被锁死为那笔权利金,最坏结果未知。</p>
+
+      <p>下表用同一张合约对比(每张 <span class="mono">500</span> 元):</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>头寸</th>
+              <th>最大亏损</th>
+              <th>最大盈利</th>
+              <th>保证金</th>
+              <th>会被追保</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag--long">买方</span> 买入看涨</td>
+              <td>权利金 <span class="mono">500</span> 元</td>
+              <td>理论无上限</td>
+              <td>不需要</td>
+              <td>不会</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag--long">买方</span> 买入看跌</td>
+              <td>权利金 <span class="mono">500</span> 元</td>
+              <td><span class="pos">9,500</span> 元(跌到 0)</td>
+              <td>不需要</td>
+              <td>不会</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag--short">卖方</span> 卖出看涨(裸卖)</td>
+              <td>理论无上限</td>
+              <td>权利金 <span class="mono">500</span> 元</td>
+              <td>需要</td>
+              <td>会</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag--short">卖方</span> 卖出看跌(裸卖)</td>
+              <td><span class="neg">9,500</span> 元(跌到 0)</td>
+              <td>权利金 <span class="mono">500</span> 元</td>
+              <td>需要</td>
+              <td>会</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--key">
+        <span class="callout__t">记住这个不对称</span>
+        买方的风险已知且封顶;卖方的风险未知,可能远超收入。券商只对卖方收保证金,原因就在这里。
+      </div>
+
+      <h2><span class="hnum">2</span>买方:四种常见的亏钱方式</h2>
+
+      <p>买方有四条能同时发生的亏钱路径。</p>
+
+      <h3>方向看错:标的往反方向走</h3>
+      <p>花 <span class="mono">500</span> 元买一张行权价 <span class="mono">100</span> 元的看涨期权。标的跌到 <span class="mono">92</span> 元时,期权成为虚值(Out of the Money,行权价高于市价、行权不划算),权利金只剩约 <span class="mono">2.00</span> 元,亏 <span class="mono">300</span> 元——标的跌 8%,期权亏 60%。</p>
+
+      <h3>时间衰减(Theta):不涨不跌也是亏的</h3>
+      <p>期权价格 = 内在价值(Intrinsic Value,立刻行权能拿到的钱)+ 时间价值(Time Value,为「还有机会」付的钱)。时间价值随到期临近蒸发,速度用 Theta 衡量,每天都在扣钱。示意:30 天后标的仍是 <span class="mono">100</span> 元,权利金从 <span class="mono">5.00</span> 元掉到约 <span class="mono">2.80</span> 元,亏 <span class="mono">220</span> 元。</p>
+
+      <h3>隐含波动率骤降(IV Crush):看对方向照样亏</h3>
+      <p>隐含波动率(Implied Volatility,IV)是市场对未来波动幅度的定价,可理解为「接下来会有多颠」。事件前 IV 被推高、期权变贵;事件落地后 IV 迅速回落。示意:财报前用 <span class="mono">5.00</span> 元买入的看涨期权(IV 约 40%),财报后标的涨到 <span class="mono">103</span> 元、方向<strong>对了</strong>,但 IV 掉到约 20%,期权约值 <span class="mono">3.60</span> 元,亏 <span class="mono">140</span> 元。</p>
+
+      <h3>到期归零:权利金 100% 损失</h3>
+      <p>到期日标的收在行权价以下,看涨期权价值就是零——不是跌了很多,而是直接归零。股票跌 90% 还剩 10%,虚值期权是 <span class="mono">500</span> 元变 <span class="mono">0</span> 元。</p>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">「亏损封顶」不等于「亏损很小」</span>
+        最大亏损确实封顶,但封顶不等于小,更不等于少见:虚值期权到期归零很常见。请把<strong>「这笔钱全部亏光」当作基准情形</strong>来安排仓位。
+      </div>
+
+      <h2><span class="hnum">3</span>卖方:收益封顶,风险封底</h2>
+
+      <p>卖方收益上限就是那笔权利金,风险却没有上限。</p>
+
+      <h3>裸卖看涨(Naked Short Call):理论亏损无上限</h3>
+      <p>裸卖(Naked)指手上没有股票却卖出看涨期权。买方行权时你必须按行权价交付股票,手上没有就按市价买回,标的涨多少就按多少买,所以<strong>理论亏损没有上限</strong>。示意:卖出行权价 <span class="mono">100</span> 元的看涨期权收 <span class="mono">500</span> 元,标的涨到 <span class="mono">200</span> 元被行权时亏损 (200 − 100) × 100 − 500 = <span class="mono">9,500</span> 元。</p>
+
+      <h3>裸卖看跌(Naked Short Put):坑有多深</h3>
+      <p>卖出看跌期权,你承诺在标的跌破行权价时按行权价买入。标的越跌越亏,直到跌到 0——亏损有下限,但可能非常深。</p>
+
+      <div class="formula">
+        <div class="formula__body">最大亏损 = (<span class="var">K</span> − 0) × 合约单位 − 收到的权利金
+            = 100 × 100 − 500
+            = 9,500 元</div>
+        <div class="formula__note">按标的跌到 0 元计算,<span class="var">K</span> 为行权价。数字仅为示意,合约单位以实际合约为准。</div>
+      </div>
+
+      <h3>胜率高 ≠ 期望值为正</h3>
+      <p>卖方常说「大部分期权到期都归零,所以胜率高」,但胜率高和赚钱是两件事:同样卖出重复 10 次,9 次赚 <span class="mono">500</span> 元、1 次亏 <span class="mono">9,500</span> 元,净亏 <span class="mono">5,000</span> 元。</p>
+
+      <h2><span class="hnum">4</span>保证金:为什么券商要你先押一笔钱</h2>
+
+      <p>保证金(Margin)不是手续费,而是<strong>押金</strong>:像租房,房东先收押金,你正常履约就退还。卖方收了权利金就背上了可能赔付的义务,券商必须确保它有东西兜底。</p>
+
+      <h3>初始保证金与维持保证金</h3>
+      <p>初始保证金决定能否开仓,维持保证金决定能否继续持有。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>项目</th>
+              <th>初始保证金(Initial Margin)</th>
+              <th>维持保证金(Maintenance Margin)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>含义</td>
+              <td>开仓须备足的资金</td>
+              <td>持仓期间权益的底线</td>
+            </tr>
+            <tr>
+              <td>示意水平</td>
+              <td class="num">约合约价值的 12%</td>
+              <td class="num">约合约价值的 7%</td>
+            </tr>
+            <tr>
+              <td>作用时点</td>
+              <td>建仓、加仓时</td>
+              <td>盘中与收盘后盯市</td>
+            </tr>
+            <tr>
+              <td>跌破后果</td>
+              <td>开不了仓</td>
+              <td>收到追保通知</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>追保通知(Margin Call)</h3>
+      <p>账户权益跌破维持保证金,券商会发出追保通知(Margin Call)。你要在很短的期限内补足资金(一般补回初始水平)或主动平仓;期限可能只有几个小时,以券商规定为准。</p>
+
+      <h3>强制平仓(Forced Liquidation)</h3>
+      <p>没有按期补足,券商有权直接替你平仓。强平往往<strong>不止一张</strong>,券商优先处理风险最大的仓位;而且<strong>被强平的价格往往最差</strong>——行情剧烈时价差变宽、挂单变薄,强平单还会把价格推得更不利。</p>
+
+      <h3>保证金是动态的</h3>
+      <p>保证金按标的现价、波动率、剩余时间持续重算:标的走反,保证金变多;波动率抬升,保证金也变多。行情越紧张,押金要求越高——而这正是你最缺钱的时候。</p>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">本节所有比例数字仅为示意</span>
+        上文的比例数字与追保线只为讲清概念,不代表真实产品。实际标准由交易所与券商制定并会调整,请以<strong>最新</strong>规则为准。
+      </div>
+
+      <h2><span class="hnum">5</span>杠杆:把 1 万元的两种用法摆在一起</h2>
+
+      <p>期权被称为杠杆工具,是因为同样一笔钱能控制更多股票。前提:本金 <span class="mono">1 万</span>元,标的现价 <span class="mono">100</span> 元,一份 100 股,权利金 <span class="mono">5</span> 元/股(每张 <span class="mono">500</span> 元),Delta 约 0.5。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>情景</th>
+              <th>用 1 万元买股票</th>
+              <th>用 1 万元买期权</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>建仓</td>
+              <td>100 元/股,买 100 股</td>
+              <td>500 元/张,买 20 张</td>
+            </tr>
+            <tr>
+              <td>标的涨 10%(100 → 110)</td>
+              <td>市值 11,000 元<br><span class="pos">+1,000 元(+10%)</span></td>
+              <td>权利金约 12 元,市值 24,000 元<br><span class="pos">+14,000 元(+140%)</span></td>
+            </tr>
+            <tr>
+              <td>标的跌 10%(100 → 90)</td>
+              <td>市值 9,000 元<br><span class="neg">−1,000 元(−10%)</span></td>
+              <td>权利金约 1.20 元,市值 2,400 元<br><span class="neg">−7,600 元(−76%)</span></td>
+            </tr>
+            <tr>
+              <td>标的横盘(仍是 100)</td>
+              <td>市值 10,000 元<br><span class="muted">0 元(0%)</span></td>
+              <td>时间价值流失,权利金约 2.80 元<br><span class="neg">−4,400 元(−44%)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt">最值得盯住的不是「+140%」,而是「−76%」和「−44%」。杠杆不会只放大盈利,它<strong>对称地放大亏损</strong>;对买方来说,连「什么都没发生」的横盘也是亏的。<span class="small muted">上表为简化示意,未计入手续费与价差。</span></p>
+
+      <h2><span class="hnum">6</span>到期日的特殊风险</h2>
+
+      <p>到期日前后有几件事要特别小心。</p>
+
+      <h3>被行权与交割准备</h3>
+      <p>卖方在到期日可能被指派行权(Assignment),而且随机:交易所把买方的行权要求随机分配给卖方,你无法选择会不会被抽中。卖出看涨被行权要交付股票,卖出看跌被行权要拿出足额资金按行权价买入。</p>
+
+      <h3>钉住风险(Pin Risk)</h3>
+      <p>钉住风险指到期日标的收盘价刚好停在行权价附近。行权价 <span class="mono">100</span> 元,标的收在 <span class="mono">100.01</span> 元,看涨期权会被行权;收在 <span class="mono">99.99</span> 元就是废纸一张——相差两分钱,结果完全相反。此时报价又宽又乱,平不掉就得带着「不知道还有没有持仓」的仓位过周末。稳妥做法:临近到期,不要在行权价附近留卖方仓位。</p>
+
+      <p>到期日附近流动性变差、价差变宽;最后交易时段价格跳动剧烈,想平仓未必能拿到理想价格。</p>
+
+      <h2><span class="hnum">7</span>流动性与价差风险</h2>
+
+      <p>买卖价差(Bid–Ask Spread)是最高买价与最低卖价之差,相当于「进场费加出场费」:你按卖价买入,卖出时只能按买价成交,一进一出先亏一个价差。</p>
+
+      <p>示意:某期权买价 <span class="mono">4.60</span> 元、卖价 <span class="mono">5.00</span> 元,价差 <span class="mono">0.40</span> 元/股。按 <span class="mono">5.00</span> 元买入 20 张(成本 <span class="mono">1 万</span>元),立刻按 <span class="mono">4.60</span> 元卖出只能收回 <span class="mono">9,200</span> 元——行情没动,先亏 <span class="mono">800</span> 元。标的要涨约 <span class="mono">0.80</span> 元(0.8%)才刚抹平这点价差,还不含手续费。</p>
+
+      <p>还要看成交量(Volume)与持仓量(Open Interest,未平仓合约总数):两者都低的合约挂单稀薄、价差更宽。「买得进、卖不出」是新手最常见的困境:方向看对了,却因为出不来把浮盈拖成实亏。</p>
+
+      <h2><span class="hnum">8</span>波动率风险(Vega)</h2>
+
+      <p>期权价格里有一部分是市场对「未来会有多颠」的定价,由隐含波动率(IV)决定,衡量它的希腊字母是 Vega。</p>
+
+      <p>对买方最危险的是在 IV 历史高位时买入:权利金里含很高的「担心溢价」,即使方向看对,只要 IV 回落到常态,溢价就会蒸发,抵消方向带来的利润——这就是第 2 节「看对方向还亏钱」的机制。若当前 IV 明显高于它过去的区间,不要在重大事件公布前追买。</p>
+
+      <p>反过来,若判断「未来波动会变小」,高 IV 对卖方有利;但卖方风险没有天然上限,要用亏损封顶的结构(如价差组合)表达,而不是裸卖。</p>
+
+      <h2><span class="hnum">9</span>风控清单</h2>
+
+      <p>这是「让自己活下来」的检查表。</p>
+
+      <div class="callout callout--tip">
+        <span class="callout__t">开仓前逐条确认</span>
+        <ul>
+          <li><strong>单笔仓位上限:</strong>先想清楚「这一笔全亏光」能否接受,再决定手数。</li>
+          <li><strong>优先用风险有限的结构:</strong>买入看涨、牛市价差的最大亏损提前确定;裸卖的亏损没有写死。</li>
+          <li><strong>避开事件前的高 IV:</strong>财报、重大会议公布前 IV 通常被推高,不要在最贵时进场。</li>
+          <li><strong>给追保留出缓冲:</strong>账户不要用到「刚好够开仓」,行情不利时保证金会变多。</li>
+          <li><strong>盯住剩余时间与到期日:</strong>虚值期权临近到期归零很快,也不要在到期日留着悬而未决的卖方仓位。</li>
+          <li><strong>事先写好退出规则,只做流动性足够的合约。</strong></li>
+        </ul>
+      </div>
+
+      <h2><span class="hnum">10</span>小结</h2>
+
+      <div class="callout callout--key">
+        <span class="callout__t">本章要点</span>
+        <ul>
+          <li>买卖双方风险完全不对称:买方亏损封顶、不需保证金;卖方收益封顶、风险可能极大,要缴保证金、也可能被追保。</li>
+          <li>买方四条亏钱路径:方向看错、时间衰减、IV 骤降、到期归零;可以叠加,横盘也可能是亏的。</li>
+          <li>裸卖看涨理论亏损无上限;裸卖看跌在标的跌到 0 时,最大亏损 = 行权价 × 合约单位 − 权利金。</li>
+          <li>保证金是押金:初始线决定能否开仓,维持线决定能否继续持有;跌破维持线会追保,不补可能被强平。</li>
+          <li>保证金动态计算,标的走反或波动率上升都会让它变多;杠杆对称放大盈亏,到期日还要防被行权与钉住风险。</li>
+        </ul>
+      </div>
+
+      <p class="mt2">风险讲清楚了才轮到实务。下一章进入具体市场:沪深 ETF 期权的门槛与合约规格、美股期权规则、行权与交割流程。继续阅读 <a href="market.html">第 08 章 · 市场与实务</a>。</p>
+
+      <div class="chaptercta">
+        <div class="chaptercta__txt">
+          <span class="chaptercta__t">▶ 想动手试一遍?</span>
+          去<strong>模拟交易台</strong>,用一支美股标的走完整流程:
+          选到期 → 读期权链 → 下单 → 推动行情 → 平仓,每一步都有对应的知识点讲解,还能看到自己的盈亏是怎么来的。
+        </div>
+        <a class="btn" href="simulator.html">进入模拟交易 →</a>
+      </div>
+
+    </article>
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

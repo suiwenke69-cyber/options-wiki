@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自测 20 题 — 期权百科</title>
+<meta name="description" content="20 道覆盖概念、定价、希腊字母、策略与风险的期权自测题,每题附详细解析。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">第 09 章 · 检验一下</p>
+        <h1>自测 20 题</h1>
+        <p class="lede">
+          这 20 道题覆盖了前面八章的核心内容。答题不是目的——<strong>每题后面都有解析</strong>,
+          答错了正好是补漏的机会。建议不查资料先做一遍。
+        </p>
+      </div>
+
+      <h2><span class="hnum">1</span>答题说明</h2>
+
+      <div class="grid grid--3">
+        <div class="card card--flat">
+          <h3 class="card__title">怎么答</h3>
+          <p class="small muted" style="margin:0">点击选项即可,选完立刻显示对错和解析,该题随后锁定。</p>
+        </div>
+        <div class="card card--flat">
+          <h3 class="card__title">怎么算分</h3>
+          <p class="small muted" style="margin:0">底部横条实时显示已答题数、正确数与正确率。</p>
+        </div>
+        <div class="card card--flat">
+          <h3 class="card__title">想重来</h3>
+          <p class="small muted" style="margin:0">点底部的"重做一遍"会清空所有选择,方便二刷。</p>
+        </div>
+      </div>
+
+      <div class="callout callout--key mt">
+        <span class="callout__t">成绩怎么读</span>
+        <strong>18–20 题</strong>:基础已经很扎实,可以去看实务章节和术语表巩固细节。<br>
+        <strong>14–17 题</strong>:概念清楚了,薄弱点多在希腊字母和定价,建议重读第 04、05 章。<br>
+        <strong>10–13 题</strong>:整体框架建立起来了,建议回头把第 03 章的交互图多玩几遍。<br>
+        <strong>10 题以下</strong>:很正常,期权本身就是反直觉的。建议从第 01 章重新读一遍,
+        <strong>重点是每章的交互图</strong>——先动手,再读文字。
+      </div>
+
+      <h2><span class="hnum">2</span>开始答题</h2>
+
+      <p class="muted small">
+        说明:全部题目都基于本站教学设定——标的现价 <span class="mono">100</span> 元、
+        每张合约乘数 <span class="mono">100</span>、无风险利率忽略不计(除非题目另有说明)。
+      </p>
+
+      <div class="quiz" id="quiz">
+
+        <!-- 1 -->
+        <div class="q" data-answer="B">
+          <p class="q__stem">买入一张期权后,买方获得的是什么?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q1" value="A"><span class="opt__k">A</span><span>在未来必须按约定价格成交的<strong>义务</strong></span></label>
+            <label class="opt"><input type="radio" name="q1" value="B"><span class="opt__k">B</span><span>在未来按约定价格成交的<strong>权利</strong>,可以放弃</span></label>
+            <label class="opt"><input type="radio" name="q1" value="C"><span class="opt__k">C</span><span>标的股票的一部分所有权</span></label>
+            <label class="opt"><input type="radio" name="q1" value="D"><span class="opt__k">D</span><span>一个必须持有到到期日的强制合约</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 B。</b>期权的本质是<strong>权利而非义务</strong>。买方付了权利金之后,
+            到期时可以行权,也可以选择不行权,最大损失就是已经付出的权利金。
+            这正是期权与期货最根本的区别——期货到期必须履约。
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="q" data-answer="C">
+          <p class="q__stem">关于期货与期权的区别,下列说法正确的是?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q2" value="A"><span class="opt__k">A</span><span>两者都是权利,买方都可以放弃履约</span></label>
+            <label class="opt"><input type="radio" name="q2" value="B"><span class="opt__k">B</span><span>两者都是义务,到期都必须履约</span></label>
+            <label class="opt"><input type="radio" name="q2" value="C"><span class="opt__k">C</span><span>期货双方都是义务;期权买方是权利、卖方是义务</span></label>
+            <label class="opt"><input type="radio" name="q2" value="D"><span class="opt__k">D</span><span>期货没有到期日,期权有到期日</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 C。</b>期货合约的<strong>买卖双方都承担履约义务</strong>,权利义务对称;
+            期权则<strong>不对称</strong>:买方拥有权利(可选择放弃),卖方承担义务。
+            正因为这种不对称,期权买方需要支付权利金,而期货双方只需缴纳保证金。
+            D 错在期货同样有到期日。
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="q" data-answer="C">
+          <p class="q__stem">某 ETF 期权报价为 <span class="mono">0.060</span> 元,每张合约对应 <span class="mono">10000</span> 份。买入 1 张需要支付多少钱?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q3" value="A"><span class="opt__k">A</span><span>0.06 元</span></label>
+            <label class="opt"><input type="radio" name="q3" value="B"><span class="opt__k">B</span><span>60 元</span></label>
+            <label class="opt"><input type="radio" name="q3" value="C"><span class="opt__k">C</span><span>600 元</span></label>
+            <label class="opt"><input type="radio" name="q3" value="D"><span class="opt__k">D</span><span>6000 元</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 C。</b>这是新手最容易算错的地方——<strong>报价是"每份"的,实际付款要乘合约单位</strong>。
+            0.060 × 10000 = <span class="mono">600</span> 元。美股同理:报价 5.00 美元 × 100 股 = 500 美元/张。
+            下单前一定确认合约乘数。
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="q" data-answer="B">
+          <p class="q__stem">标的现价 <span class="mono">100</span> 元,行权价 <span class="mono">90</span> 元的看涨期权,其内在价值是多少?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q4" value="A"><span class="opt__k">A</span><span>0</span></label>
+            <label class="opt"><input type="radio" name="q4" value="B"><span class="opt__k">B</span><span>10 元</span></label>
+            <label class="opt"><input type="radio" name="q4" value="C"><span class="opt__k">C</span><span>90 元</span></label>
+            <label class="opt"><input type="radio" name="q4" value="D"><span class="opt__k">D</span><span>100 元</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 B。</b>看涨期权内在价值 = max(S − K, 0) = max(100 − 90, 0) = <span class="mono">10</span> 元。
+            因为现在立刻行权能以 90 元买入市价 100 元的标的,这笔"已经赚到的"就是内在价值。
+            该期权属于<strong>实值(ITM)</strong>。
+          </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="q" data-answer="A">
+          <p class="q__stem">标的现价 <span class="mono">100</span> 元,行权价 <span class="mono">110</span> 元的<strong>看跌</strong>期权,属于?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q5" value="A"><span class="opt__k">A</span><span>实值 ITM</span></label>
+            <label class="opt"><input type="radio" name="q5" value="B"><span class="opt__k">B</span><span>平值 ATM</span></label>
+            <label class="opt"><input type="radio" name="q5" value="C"><span class="opt__k">C</span><span>虚值 OTM</span></label>
+            <label class="opt"><input type="radio" name="q5" value="D"><span class="opt__k">D</span><span>无法判断</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 A。</b>看跌期权的实值条件是 <strong>K &gt; S</strong>。
+            这里 110 &gt; 100,所以立刻行权能以 110 元卖出市价 100 元的标的,有 10 元内在价值,属于实值。
+            <strong>注意看涨看跌的实值方向正好相反</strong>:看涨是 S &gt; K,看跌是 K &gt; S。
+          </div>
+        </div>
+
+        <!-- 6 -->
+        <div class="q" data-answer="C">
+          <p class="q__stem">买入 1 张看涨期权,行权价 <span class="mono">100</span>、权利金 <span class="mono">5</span>。到期时标的价为 <span class="mono">105</span>,盈亏是多少(每单位)?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q6" value="A"><span class="opt__k">A</span><span>赚 5 元</span></label>
+            <label class="opt"><input type="radio" name="q6" value="B"><span class="opt__k">B</span><span>亏 5 元</span></label>
+            <label class="opt"><input type="radio" name="q6" value="C"><span class="opt__k">C</span><span>正好打平,盈亏为 0</span></label>
+            <label class="opt"><input type="radio" name="q6" value="D"><span class="opt__k">D</span><span>赚 10 元</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 C。</b>内在价值 = 105 − 100 = 5,而你付出的权利金也是 5,所以净盈亏 = 0。
+            这里的 105 正是<strong>盈亏平衡点</strong>(K + 权利金)。
+            这道题的意义在于:<strong>方向看对了(确实涨了)但仍然可能一分钱不赚</strong>。
+          </div>
+        </div>
+
+        <!-- 7 -->
+        <div class="q" data-answer="D">
+          <p class="q__stem">四大基本头寸中,哪一个的理论最大亏损是"无下限"的?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q7" value="A"><span class="opt__k">A</span><span>买入看涨</span></label>
+            <label class="opt"><input type="radio" name="q7" value="B"><span class="opt__k">B</span><span>买入看跌</span></label>
+            <label class="opt"><input type="radio" name="q7" value="C"><span class="opt__k">C</span><span>卖出看跌</span></label>
+            <label class="opt"><input type="radio" name="q7" value="D"><span class="opt__k">D</span><span>卖出看涨</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 D。</b>卖出看涨(裸卖)的亏损随标的上涨而无限扩大——因为股价理论上可以无限上涨,
+            所以亏损<strong>没有下限</strong>。买入看涨与买入看跌的最大亏损都是权利金(封顶);
+            卖出看跌的最大亏损虽然很大,但标的跌到零为止,亏损 = 行权价 − 权利金,是有底的。
+          </div>
+        </div>
+
+        <!-- 8 -->
+        <div class="q" data-answer="B">
+          <p class="q__stem">卖出 1 张看跌期权的最大盈利是多少?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q8" value="A"><span class="opt__k">A</span><span>无上限</span></label>
+            <label class="opt"><input type="radio" name="q8" value="B"><span class="opt__k">B</span><span>收到的权利金</span></label>
+            <label class="opt"><input type="radio" name="q8" value="C"><span class="opt__k">C</span><span>行权价 − 权利金</span></label>
+            <label class="opt"><input type="radio" name="q8" value="D"><span class="opt__k">D</span><span>行权价</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 B。</b>卖方在开仓时就把权利金收进了口袋,这笔钱就是他能赚到的<strong>全部</strong>。
+            只要到期时标的价高于行权价,看跌期权归零,卖方就完整保留权利金。
+            <strong>卖方永远是"收益封顶、风险不封顶"</strong>——这是期权最重要的不对称性之一。
+          </div>
+        </div>
+
+        <!-- 9 -->
+        <div class="q" data-answer="A">
+          <p class="q__stem">期权的权利金由哪两部分构成?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q9" value="A"><span class="opt__k">A</span><span>内在价值 + 时间价值</span></label>
+            <label class="opt"><input type="radio" name="q9" value="B"><span class="opt__k">B</span><span>内在价值 − 时间价值</span></label>
+            <label class="opt"><input type="radio" name="q9" value="C"><span class="opt__k">C</span><span>保证金 + 手续费</span></label>
+            <label class="opt"><input type="radio" name="q9" value="D"><span class="opt__k">D</span><span>行权价 + 标的价格</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 A。</b>权利金 = 内在价值 + 时间价值。
+            <strong>内在价值</strong>回答"现在立刻行权能赚多少";<strong>时间价值</strong>回答"未来还可能变得多值钱"。
+            虚值期权的内在价值为零,价格全部是时间价值。
+          </div>
+        </div>
+
+        <!-- 10 -->
+        <div class="q" data-answer="C">
+          <p class="q__stem">在到期日当天,期权的时间价值等于多少?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q10" value="A"><span class="opt__k">A</span><span>等于权利金</span></label>
+            <label class="opt"><input type="radio" name="q10" value="B"><span class="opt__k">B</span><span>等于内在价值</span></label>
+            <label class="opt"><input type="radio" name="q10" value="C"><span class="opt__k">C</span><span>等于 0</span></label>
+            <label class="opt"><input type="radio" name="q10" value="D"><span class="opt__k">D</span><span>等于标的的价格</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 C。</b>时间价值是"未来还可能变得值钱"的溢价。到了到期日,"未来"已经不存在了,
+            所以时间价值<strong>必然归零</strong>,期权价格只剩内在价值。
+            这就是为什么买入期权后"什么都不做也会亏钱"——每天都在损失时间价值。
+          </div>
+        </div>
+
+        <!-- 11 -->
+        <div class="q" data-answer="C">
+          <p class="q__stem">下列哪个因素上升时,<strong>看涨和看跌期权会同时变贵</strong>?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q11" value="A"><span class="opt__k">A</span><span>标的价格 S</span></label>
+            <label class="opt"><input type="radio" name="q11" value="B"><span class="opt__k">B</span><span>行权价 K</span></label>
+            <label class="opt"><input type="radio" name="q11" value="C"><span class="opt__k">C</span><span>波动率 σ</span></label>
+            <label class="opt"><input type="radio" name="q11" value="D"><span class="opt__k">D</span><span>以上都会</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 C。</b>标的价格上涨只让看涨变贵、看跌变便宜;行权价上升只让看涨变便宜、看跌变贵。
+            只有<strong>波动率</strong>(以及剩余时间)上升时,两个方向<strong>同时</strong>变贵——
+            因为这代表"未来的不确定性变大",两边都有机会赚大钱,所以两边都涨价。
+            这也是"期权交易的是不确定性本身"这句话的来源。
+          </div>
+        </div>
+
+        <!-- 12 -->
+        <div class="q" data-answer="B">
+          <p class="q__stem">隐含波动率(Implied Volatility)是怎么得到的?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q12" value="A"><span class="opt__k">A</span><span>统计过去一段时间的实际价格波动算出来的</span></label>
+            <label class="opt"><input type="radio" name="q12" value="B"><span class="opt__k">B</span><span>把市场价格代入定价模型反推出来的</span></label>
+            <label class="opt"><input type="radio" name="q12" value="C"><span class="opt__k">C</span><span>交易所每天公布的一个固定数值</span></label>
+            <label class="opt"><input type="radio" name="q12" value="D"><span class="opt__k">D</span><span>由公司的盈利增长率决定的</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 B。</b>定价公式里 S、K、T、r 都是可以观测的,只有波动率是对未来的预测。
+            既然市场价格公开,就可以<strong>反解</strong>出市场预期的波动率——这就是隐含波动率。
+            A 描述的是<strong>历史波动率</strong>(已发生的事),两者的区别是本章的重点考点。
+          </div>
+        </div>
+
+        <!-- 13 -->
+        <div class="q" data-answer="C">
+          <p class="q__stem">某看涨期权的 Delta 为 <span class="mono">0.60</span>,每张合约乘数 <span class="mono">100</span>。持有 1 张该期权,其方向性敞口大约相当于持有多少股标的?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q13" value="A"><span class="opt__k">A</span><span>0.6 股</span></label>
+            <label class="opt"><input type="radio" name="q13" value="B"><span class="opt__k">B</span><span>6 股</span></label>
+            <label class="opt"><input type="radio" name="q13" value="C"><span class="opt__k">C</span><span>60 股</span></label>
+            <label class="opt"><input type="radio" name="q13" value="D"><span class="opt__k">D</span><span>100 股</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 C。</b>等效股数 = Delta × 合约乘数 = 0.60 × 100 = <span class="mono">60</span> 股。
+            这个直觉非常有用:它同时告诉你<strong>方向敞口有多大</strong>,以及<strong>要卖空多少股才能对冲掉方向风险</strong>(即 Delta 中性)。
+          </div>
+        </div>
+
+        <!-- 14 -->
+        <div class="q" data-answer="C">
+          <p class="q__stem">哪个希腊字母衡量"每过一天,期权损失多少价值"?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q14" value="A"><span class="opt__k">A</span><span>Delta</span></label>
+            <label class="opt"><input type="radio" name="q14" value="B"><span class="opt__k">B</span><span>Gamma</span></label>
+            <label class="opt"><input type="radio" name="q14" value="C"><span class="opt__k">C</span><span>Theta</span></label>
+            <label class="opt"><input type="radio" name="q14" value="D"><span class="opt__k">D</span><span>Vega</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 C。</b>Theta 衡量时间衰减。对买方而言 Theta 通常为<strong>负</strong>(每天在漏钱);
+            对卖方为正(每天在收钱)。所以业内说"<strong>Theta 是买方的敌人、卖方的朋友</strong>"。
+            Delta 管方向,Gamma 管 Delta 的变化速度,Vega 管波动率。
+          </div>
+        </div>
+
+        <!-- 15 -->
+        <div class="q" data-answer="B">
+          <p class="q__stem">Gamma 在下列哪种情况下最大(风险最高)?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q15" value="A"><span class="opt__k">A</span><span>深度实值、且剩余时间很长</span></label>
+            <label class="opt"><input type="radio" name="q15" value="B"><span class="opt__k">B</span><span>平值附近、且临近到期</span></label>
+            <label class="opt"><input type="radio" name="q15" value="C"><span class="opt__k">C</span><span>深度虚值、且剩余时间很长</span></label>
+            <label class="opt"><input type="radio" name="q15" value="D"><span class="opt__k">D</span><span>Gamma 与行权价和时间无关</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 B。</b>Gamma 在<strong>平值</strong>处最大,并且<strong>越接近到期越极端</strong>——
+            平值期权的 Gamma 会急剧上升,Delta 在 0 和 1 之间剧烈翻转。
+            这就是"到期日附近的平值期权卖方"被认为最危险的原因:标的小小一动,仓位方向就反转。
+          </div>
+        </div>
+
+        <!-- 16 -->
+        <div class="q" data-answer="A">
+          <p class="q__stem">你想赌某只股票在财报后会剧烈波动,但<strong>不确定往哪个方向</strong>。最贴合这个看法的策略是?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q16" value="A"><span class="opt__k">A</span><span>买入跨式(同时买入同行权价的看涨与看跌)</span></label>
+            <label class="opt"><input type="radio" name="q16" value="B"><span class="opt__k">B</span><span>买入看涨期权</span></label>
+            <label class="opt"><input type="radio" name="q16" value="C"><span class="opt__k">C</span><span>卖出跨式</span></label>
+            <label class="opt"><input type="radio" name="q16" value="D"><span class="opt__k">D</span><span>备兑开仓</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 A。</b>买入跨式同时持有看涨和看跌,<strong>不赌方向,只赌波动幅度</strong>——
+            无论大涨还是大跌都能获利,最大亏损是两份权利金(发生在标的不动时)。
+            注意 C 的卖出跨式恰好相反:它赌的是"不会有大波动",是收益封顶、风险很大的卖方策略。
+          </div>
+        </div>
+
+        <!-- 17 -->
+        <div class="q" data-answer="B">
+          <p class="q__stem">备兑开仓(Covered Call)的构成是?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q17" value="A"><span class="opt__k">A</span><span>买入标的 + 买入看涨期权</span></label>
+            <label class="opt"><input type="radio" name="q17" value="B"><span class="opt__k">B</span><span>持有标的 + 卖出看涨期权</span></label>
+            <label class="opt"><input type="radio" name="q17" value="C"><span class="opt__k">C</span><span>持有标的 + 买入看跌期权</span></label>
+            <label class="opt"><input type="radio" name="q17" value="D"><span class="opt__k">D</span><span>卖空标的 + 卖出看跌期权</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 B。</b>备兑 = 手里有货(covered)+ 卖出看涨收权利金。
+            代价是<strong>上方收益被封住</strong>:股价涨过行权价后,你的盈利就不再增长。
+            C 描述的是<strong>保护性看跌</strong>——那是买保险,不是收租。
+          </div>
+        </div>
+
+        <!-- 18 -->
+        <div class="q" data-answer="C">
+          <p class="q__stem">关于铁鹰(Iron Condor)策略,下列说法正确的是?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q18" value="A"><span class="opt__k">A</span><span>它是净支出策略,风险无限</span></label>
+            <label class="opt"><input type="radio" name="q18" value="B"><span class="opt__k">B</span><span>它赌的是标的会大幅单边上涨</span></label>
+            <label class="opt"><input type="radio" name="q18" value="C"><span class="opt__k">C</span><span>它是净收入策略,且通过买入更远的期权把风险限定了</span></label>
+            <label class="opt"><input type="radio" name="q18" value="D"><span class="opt__k">D</span><span>它的最大盈利发生在标的暴涨时</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 C。</b>铁鹰 = 卖出一组价差 + 买入更远的保护腿,整体是<strong>净收入</strong>(先收钱)。
+            它的最大盈利出现在标的<strong>停在中间区间</strong>时,而不是暴涨时。
+            买入保护腿的意义在于把原本可能无限的亏损<strong>限定住</strong>——这是它比裸卖安全得多的原因。
+          </div>
+        </div>
+
+        <!-- 19 -->
+        <div class="q" data-answer="D">
+          <p class="q__stem">裸卖看涨期权(Naked Short Call)最需要警惕的风险是什么?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q19" value="A"><span class="opt__k">A</span><span>最大亏损就是收到的权利金</span></label>
+            <label class="opt"><input type="radio" name="q19" value="B"><span class="opt__k">B</span><span>完全没有风险,因为卖方胜率高</span></label>
+            <label class="opt"><input type="radio" name="q19" value="C"><span class="opt__k">C</span><span>只承担时间衰减的风险</span></label>
+            <label class="opt"><input type="radio" name="q19" value="D"><span class="opt__k">D</span><span>理论亏损无上限,且需要缴纳保证金、可能被强制平仓</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 D。</b>裸卖看涨的收益封顶(权利金),但标的上涨时亏损会<strong>无限扩大</strong>。
+            同时它需要缴纳保证金,标的大涨会导致保证金要求上升,可能收到<strong>追保通知</strong>;
+            若未能及时补足,会被<strong>强制平仓</strong>,而且往往平在最差的价格上。
+            B 的"胜率高"恰恰是最危险的错觉——<strong>胜率高不等于期望值为正</strong>。
+          </div>
+        </div>
+
+        <!-- 20 -->
+        <div class="q" data-answer="C">
+          <p class="q__stem">你买入看涨期权后,股价确实涨了,但你的期权却亏了钱。最可能的解释是?</p>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q20" value="A"><span class="opt__k">A</span><span>不可能发生,方向对了一定赚钱</span></label>
+            <label class="opt"><input type="radio" name="q20" value="B"><span class="opt__k">B</span><span>一定是券商算错了</span></label>
+            <label class="opt"><input type="radio" name="q20" value="C"><span class="opt__k">C</span><span>时间衰减(Theta)和/或隐含波动率下降(Vega)造成的亏损,超过了方向上的盈利</span></label>
+            <label class="opt"><input type="radio" name="q20" value="D"><span class="opt__k">D</span><span>因为期权没有到期日</span></label>
+          </div>
+          <div class="q__exp">
+            <b>答案 C。</b>这是期权最反直觉、也最重要的一点。期权价格由<strong>方向 + 时间 + 波动率</strong>共同决定:
+            涨幅不够大时,方向上的收益可能被 <strong>Theta</strong>(每天的时间损耗)吃掉;
+            如果是在高 IV 时买入(例如财报前),事件落地后 <strong>IV 崩塌(Vega 亏损)</strong> 更会瞬间吞掉方向盈利。
+            <strong>期权不只是"看方向"的工具。</strong>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="quizbar">
+        <span class="quizbar__score">已答 <b>0/20</b></span>
+        <button type="button" class="btn btn--ghost" data-quiz-reset>重做一遍</button>
+      </div>
+
+      <h2><span class="hnum">3</span>答完之后:你该往哪走</h2>
+
+      <p>
+        不管结果如何,下面这份清单可以作为后续的复习路径。哪一块错得多,就回到对应章节重点看交互图。
+      </p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>如果你在第几题出错</th><th>说明薄弱点</th><th>回到哪一章</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="mono">1–2</td><td>期权与期货、权利与义务的基本区别</td><td><a href="basics.html">第 01 章</a></td></tr>
+            <tr><td class="mono">3–5</td><td>合约要素、合约乘数、实值虚值判断</td><td><a href="contract.html">第 02 章</a></td></tr>
+            <tr><td class="mono">6–8</td><td>盈亏计算与最大盈亏的判定</td><td><a href="payoff.html">第 03 章</a></td></tr>
+            <tr><td class="mono">9–12</td><td>权利金构成、五因素影响方向、隐含波动率</td><td><a href="pricing.html">第 04 章</a></td></tr>
+            <tr><td class="mono">13–15</td><td>Delta / Gamma / Theta / Vega 的含义</td><td><a href="greeks.html">第 05 章</a></td></tr>
+            <tr><td class="mono">16–18</td><td>策略构成与适用场景</td><td><a href="strategies.html">第 06 章</a></td></tr>
+            <tr><td class="mono">19–20</td><td>卖方风险、保证金、IV 崩塌</td><td><a href="risk.html">第 07 章</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout--key mt">
+        <span class="callout__t">最后一句提醒</span>
+        做对 20 题只说明你<strong>理解了概念</strong>,并不说明你能稳定盈利。
+        期权的实际交易还涉及仓位管理、滑点、流动性、情绪控制——
+        这些是任何测验都测不出来的。请把这一章当成"知识体检",而不是"能力认证"。
+      </div>
+
+      <p class="mt2">
+        <a class="btn" href="glossary.html" style="display:inline-block">继续读第 10 章 · 术语表 →</a>
+        <a class="btn btn--ghost" href="index.html" style="display:inline-block;margin-left:8px">返回首页</a>
+      </p>
+
+      <div class="chaptercta">
+        <div class="chaptercta__txt">
+          <span class="chaptercta__t">▶ 想动手试一遍?</span>
+          去<strong>模拟交易台</strong>,用一支美股标的走完整流程:
+          选到期 → 读期权链 → 下单 → 推动行情 → 平仓,每一步都有对应的知识点讲解,还能看到自己的盈亏是怎么来的。
+        </div>
+        <a class="btn" href="simulator.html">进入模拟交易 →</a>
+      </div>
+
+    </article>
+
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

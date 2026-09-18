@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>市场与实务 — 期权百科</title>
+<meta name="description" content="A 股 ETF 期权、股指期权、商品期权与美股期权的结构性对比;行权与交割怎么发生;交易软件字段怎么读;下单前检查清单。">
+<link rel="stylesheet" href="assets/style.css">
+<script>/* 首次绘制前应用已保存的主题,避免闪烁 */
+try{var t=localStorage.getItem("optionswiki-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="brand" href="index.html"><span class="brand__mark">◈</span>期权百科</a>
+    <button class="navtoggle" aria-expanded="false" aria-controls="sitenav">目录</button>
+    <nav class="sitenav" id="sitenav">
+      <a href="basics.html"><span class="navnum">01</span>期权是什么</a>
+      <a href="contract.html"><span class="navnum">02</span>合约要素</a>
+      <a href="payoff.html"><span class="navnum">03</span>到期盈亏</a>
+      <a href="pricing.html"><span class="navnum">04</span>定价原理</a>
+      <a href="greeks.html"><span class="navnum">05</span>希腊字母</a>
+      <a href="strategies.html"><span class="navnum">06</span>组合策略</a>
+      <a href="risk.html"><span class="navnum">07</span>风险与保证金</a>
+      <a href="market.html"><span class="navnum">08</span>市场与实务</a>
+      <a href="quiz.html"><span class="navnum">09</span>自测</a>
+      <a href="glossary.html"><span class="navnum">10</span>术语表</a>
+      <a href="simulator.html" class="navcta"><span class="navnum">实战</span>模拟交易</a>
+    </nav>
+    <button class="theme-toggle" data-theme-toggle aria-label="切换深浅色主题" title="切换深浅色主题">◐</button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="layout">
+    <article class="prose">
+
+      <div class="pagehead">
+        <p class="eyebrow">第 08 章 · 真实世界</p>
+        <h1>市场与实务</h1>
+        <p class="lede">前七章讲道理,这一章讲规则:期权在哪儿买卖、合约怎么规定、行权交割如何发生、软件字段怎么读。</p>
+      </div>
+
+      <h2><span class="hnum">1</span>期权在哪里交易:场内与场外</h2>
+      <p><strong>场内</strong>(Exchange-Traded)合约由交易所统一设计,条款一致、公开竞价;<strong>场外</strong>(Over-the-Counter,OTC)由双方私下谈,可定制条款。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>对比维度</th><th>场内期权</th><th>场外期权(OTC)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>标准化程度</td><td>标的、到期日、行权价档位、合约单位由交易所统一规定,只有价格由市场定</td><td>完全定制,期限、行权价、名义本金、结算方式均可谈</td></tr>
+            <tr><td>流动性</td><td>公开撮合+做市商,主力合约随时可买卖</td><td>无公开市场,提前平仓往往只能找原对手方</td></tr>
+            <tr><td>对手方风险</td><td>由<strong>清算所</strong>居中担保,不必担心对手跑路</td><td>直接承担对手违约风险</td></tr>
+            <tr><td>典型使用者</td><td>个人投资者、公募私募、做市商</td><td>企业套保、券商银行自营、合格投资者</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt"><strong>清算所</strong>(Clearing House)站在每笔成交中间,对买方它是卖方、对卖方它是买方,术语叫<strong>中央对手方</strong>,故不必担心对手赖账。</p>
+
+      <h2><span class="hnum">2</span>三个层次的标的:ETF、个股、股指</h2>
+      <p>期权的价值全来自<strong>标的资产</strong>,按标的分三档:<strong>ETF 期权</strong>的标的是<strong>交易所交易基金</strong>(Exchange-Traded Fund),一篮子股票打包成的可买卖基金,既分散又可实物交割;<strong>个股期权</strong>的标的是单一公司股票,波动大、单票风险集中;<strong>股指期权</strong>的标的则是<strong>股票指数</strong>(Stock Index),如沪深 300、标普 500——指数无法交付,故几乎都用<strong>现金交割</strong>(Cash Settlement)。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>标的类型</th><th>特点</th><th>常见用途</th><th>交割方式</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>ETF 期权</td><td>一篮子资产,分散度好,有实物流通盘</td><td>判断大盘或某类风格方向、给持仓上保险</td><td>通常<strong>实物交割</strong>(交付 ETF 份额)</td></tr>
+            <tr><td>个股期权</td><td>波动大,与公司事件强相关,单票风险集中</td><td>表达对单一公司的观点、增强持股收益</td><td>通常<strong>实物交割</strong>(交付股票)</td></tr>
+            <tr><td>股指期权</td><td>波动相对温和,合约规模大,偏机构</td><td>系统性风险对冲、整体仓位管理</td><td>通常<strong>现金交割</strong>(按点位差额结算)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2><span class="hnum">3</span>中国市场概览:有哪些期权可交易</h2>
+      <p>境内场内期权分散在不同交易所,按标的分三块:</p>
+      <ul>
+        <li><strong>沪深交易所的 ETF 期权</strong>——上交所与深交所均上市,标的是主流宽基与风格 ETF,例如以上证 50ETF、沪深 300ETF、中证 500ETF、创业板 ETF 等为标的的期权。这是<strong>个人最常接触</strong>的一类。</li>
+        <li><strong>中金所的股指期权</strong>——中国金融期货交易所(中金所,CFFEX)上市以沪深 300、中证 1000、上证 50 等指数为标的的期权。名义本金较大、现金交割,以机构为主,适当性通常更严。</li>
+        <li><strong>商品期货交易所的商品期权</strong>——上期所、大商所、郑商所、广期所均有,标的是黄金、铜、原油、大豆、玉米、铁矿石等品种的<strong>期货合约</strong>。行权后拿到的是<strong>期货持仓</strong>,仍受期货保证金与交割规则约束。</li>
+      </ul>
+
+      <h3>投资者适当性:个人投资者的四类条件</h3>
+      <p><strong>适当性</strong>(Investor Suitability)是监管要求券商先判断"这个产品适不适合你"。个人参与境内期权,结构上通常要同时满足四类条件:一是<strong>资金条件</strong>,可用资产达到规定量级;二是<strong>交易经验</strong>,具备一定时长的证券或期货交易经历,或有融资融券、金融期货等资格;三是<strong>知识测试</strong>,通过交易所认可的知识测评;四是<strong>模拟交易经历</strong>,完成规定笔数与类型的模拟交易。通常还需签署风险揭示书。</p>
+      <p><strong>具体门槛数值与豁免情形会调整,一律以交易所与券商最新规定为准。</strong>机构另有安排,通常从内控制度、专业团队与净资产等维度评估。</p>
+
+      <h3>合约层面的一般性安排</h3>
+      <p>境内 ETF 期权与股指期权通常为<strong>欧式</strong>(European Style),只能在到期日当天行权,部分商品期权为美式;一张期权对应固定数量的标的,这个<strong>合约单位</strong>由交易所规定;到期日一般安排在<strong>到期月第四个星期三</strong>(遇节假日顺延)。以上均可能调整,<strong>以交易所公告为准</strong>。</p>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">两点风险提示</span>
+        <strong>一、商品期权不是"商品股票期权"。</strong>以为行权能拿到实物黄金是常见误解,实际拿到的是期货持仓。
+        <strong>二、参与境外期权须走合规渠道。</strong>通过境外平台或"代客炒美股期权"操作,可能触及外汇管理、账户实名、跨境证券投资等合规问题。请通过持牌机构合规办理。
+      </div>
+
+      <h2><span class="hnum">4</span>美股市场概览:合约规格与差异</h2>
+      <p>美国市场全球最深最广,个人可交易<strong>个股期权</strong>、<strong>ETF 期权</strong>与<strong>指数期权</strong>,如以标普 500 指数为标的的 SPX 期权。注意:<strong>指数期权与"跟踪该指数的 ETF 期权"是两种产品</strong>,前者现金交割,后者实物交割。</p>
+
+      <h3>合约规格:一张 = 100 股</h3>
+      <p>最需刻进肌肉记忆的一条:<strong>标准合约 1 张对应 100 股</strong>,而报价是<strong>每股价格</strong>。看到报价 <span class="mono">3.00</span>,实际要付 <span class="mono">3.00 × 100 = 300</span> 美元(不含费用)。拆股、并购时合约单位可能被调整。</p>
+
+      <div class="formula">
+        <div class="formula__body">实际金额 = 报价 × 合约乘数 × 张数</div>
+        <div class="formula__note">以美股标准合约为教学示例:报价 3.00 × 100 股 × 1 张 = 300 美元。A 股期权与指数期权的乘数由交易所规定,不要套用 100。</div>
+      </div>
+
+      <h3>行权风格与到期周期</h3>
+      <p>美股<strong>个股与 ETF 期权绝大多数是美式</strong>(American Style),到期前任何交易日都能行权;<strong>部分指数期权是欧式</strong>。到期周期分三层:<strong>每周期权</strong>(Weekly)每周到期,适合短线;<strong>月度期权</strong>(Monthly)通常每月第三个星期五到期,流动性最好;<strong>长期期权</strong>(LEAPS)到期在一年以上,常替代长期持股或做长期保险。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>对比项</th><th>A 股 ETF 期权(境内)</th><th>美股个股 / ETF 期权</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>合约单位</td><td>由交易所规定,按 ETF 份额计</td><td>通常 1 张 = 100 股</td></tr>
+            <tr><td>报价方式</td><td>按每份标的的权利金报价,金额 = 报价 × 合约单位</td><td>按<strong>每股</strong>报价,金额为报价 × 100</td></tr>
+            <tr><td>行权风格</td><td>通常<strong>欧式</strong>,仅到期日可行权</td><td>个股与 ETF 多为<strong>美式</strong>,部分指数期权为欧式</td></tr>
+            <tr><td>交割方式</td><td>通常实物交割(交付 ETF 份额)</td><td>个股 / ETF 实物交割;指数期权现金交割</td></tr>
+            <tr><td>交易时段</td><td>与 A 股现货同步的日间时段,无盘后</td><td>常规时段外通常有盘前盘后,与股票不完全相同</td></tr>
+            <tr><td>到期日安排</td><td>一般在到期月第四个星期三(以公告为准)</td><td>周期性到期,月度合约通常为每月第三个星期五</td></tr>
+            <tr><td>结算货币</td><td>人民币计价结算,另有涨跌停与熔断</td><td>美元计价结算,涉及汇率折算</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2><span class="hnum">5</span>交易机制:报价、价差与做市商</h2>
+      <p>期权以<strong>竞价撮合</strong>成交:买方出<strong>买价</strong>(Bid),卖方出<strong>卖价</strong>(Ask),相遇即成交。买价总低于卖价,差额就是<strong>买卖价差</strong>(Bid-Ask Spread)——最易被忽视却最持续的成本:按卖价买入后立刻卖出只能按买价,一进一出就亏掉一个价差。</p>
+
+      <div class="callout callout--case">
+        <span class="callout__t">算一笔账:价差是怎么吃掉利润的</span>
+        某合约买价 <span class="mono">1.00</span>、卖价 <span class="mono">1.20</span>,价差 <span class="mono">0.20</span>。按 <span class="mono">1.20</span> 买入后立刻按 <span class="mono">1.00</span> 卖出即损失 <span class="mono">0.20</span>,约为权利金的 <span class="neg">17%</span>。标的须先走过这段距离,你才刚回到起点。
+      </div>
+
+      <p class="mt"><strong>做市商</strong>(Market Maker)同时挂出买价与卖价,靠价差与库存管理获利,是流动性的来源。但<strong>越冷门、越临近到期、越深度虚值的合约,价差就越宽。</strong>故下单前先看价差,优先选主力月份与平值附近的合约。</p>
+
+      <h2><span class="hnum">6</span>行权与交割到底怎么发生</h2>
+      <p><strong>第一步,买方主动提交指令。</strong>期权是买方的权利,须在规定时间内提交<strong>行权指令</strong>(Exercise Instruction);不提交通常视为放弃(自动行权除外)。窗口一般在到期日收盘前后,过期不候。</p>
+      <p><strong>第二步,卖方被随机指派。</strong>买方行权后,清算所从该合约所有空头账户中<strong>随机</strong>挑出一部分履约,这叫<strong>指派</strong>(Assignment)。关键是随机而非先来后到,你无法靠"晚点开仓"躲开;想避免只能到期前平掉,或提前备好资金与券。</p>
+      <p><strong>第三步,自动行权兜底。</strong>为保护忘记操作的买方,交易所与券商会设置<strong>自动行权</strong>(Automatic Exercise):合约<strong>实值达到一定程度</strong>时系统默认行权。故卖方<strong>不能指望"对方忘记行权"</strong>。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>交割方式</th><th>发生什么</th><th>买方准备</th><th>卖方准备</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>实物交割<br><span class="small muted">Physical Settlement</span></td><td>按行权价一手交钱一手交货:看涨买方付钱拿券,卖方交券收钱</td><td>足额资金或已有持仓</td><td>足额的券(或有能力买入)</td></tr>
+            <tr><td>现金交割<br><span class="small muted">Cash Settlement</span></td><td>只结算实值部分差额,不涉及证券过户</td><td>无需资金准备,差额直接入账</td><td>留足支付差额的资金</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt">自动行权只是兜底:略为实值、或你不想接货交货的持仓,应在到期前主动平仓。</p>
+
+      <div class="callout callout--key">
+        <span class="callout__t">卖方的铁律:到期日之前,钱或券必须到位</span>
+        收到权利金的那一刻你就已承担义务。<strong>到期日之前,你必须备好足够的钱,或足够的券。</strong>准备不足会被强制平仓或按违约处理,损失可能远大于权利金。详见<a href="risk.html">第 07 章</a>。
+      </div>
+
+      <h2><span class="hnum">7</span>交易成本与实务细节</h2>
+      <p>期权成本比股票复杂,显性费用与隐性摩擦并存:<strong>佣金</strong>(按张或按笔收取,各家差异大)、<strong>交易所规费与结算费</strong>(金额小但按张累积)、<strong>行权费</strong>(提交行权或发生指派时可能单独收取),以及两项隐性成本——<strong>买卖价差</strong>(开仓平仓各吃一次)和<strong>滑点</strong>(Slippage,下单到成交间价格变化,流动性差时偏离更大)。</p>
+
+      <div class="callout callout--warn">
+        <span class="callout__t">期权成本对短线策略的伤害远大于股票</span>
+        关键在于<strong>费用相对于本金的比例</strong>。同样几十元费用,放在数万元的股票交易里可忽略;而权利金只有几百元的期权,来回一趟就吃掉可观一块。<strong>固定费用与价差占权利金的比例被成倍放大</strong>,对频繁进出的短线策略可能是致命的。结论:期权更适合<strong>降低交易频率、选流动性好的合约</strong>。
+      </div>
+
+      <h2><span class="hnum">8</span>交易软件上你会看到的字段</h2>
+      <p>第一次打开期权行情页往往发懵。下面逐个拆开,建议对照自己的软件看一遍。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>字段</th><th>英文 / 缩写</th><th>大白话解释</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>合约代码</td><td class="mono">Contract Code</td><td>合约的"身份证",由标的名、到期月份、认购/认沽、行权价编码拼成。<strong>下单前务必逐段核对</strong>。</td></tr>
+            <tr><td>最新价</td><td class="mono">Last Price</td><td>最近一笔成交价,<strong>不代表你现在能成交的价格</strong>;冷门合约可能很久没有成交。</td></tr>
+            <tr><td>涨跌幅</td><td class="mono">Change %</td><td>相对前一日结算价的涨跌比例。因含杠杆,天然比股票剧烈。</td></tr>
+            <tr><td>买价 / 卖价</td><td class="mono">Bid / Ask</td><td>别人愿买、愿卖的价格。<strong>买按卖价、卖按买价</strong>,差额即价差。</td></tr>
+            <tr><td>成交量</td><td class="mono">Volume</td><td>当天已成交张数,看<strong>今天</strong>的活跃度。</td></tr>
+            <tr><td>持仓量</td><td class="mono">Open Interest</td><td>尚未平仓或到期的合约总张数,看<strong>存量</strong>与流动性。持仓量大的合约价差通常更窄。</td></tr>
+            <tr><td>隐含波动率</td><td class="mono">Implied Volatility, IV</td><td>从权利金倒推的市场对未来波动的预期。<strong>IV 高则期权贵,低则便宜</strong>,详见<a href="greeks.html#vega">第 05 章</a>。</td></tr>
+            <tr><td>希腊字母</td><td class="mono">Delta / Gamma / Theta / Vega / Rho</td><td>风险刻度盘:Delta 看标的价格变动,Theta 看时间每天吃掉多少价值,Vega 看波动率变化。通常显示整个持仓的合计值。</td></tr>
+            <tr><td>理论价</td><td class="mono">Theoretical Price</td><td>软件用定价模型(如 Black-Scholes,见<a href="pricing.html">第 04 章</a>)算出的"应然价",可对比市场价看贵贱。</td></tr>
+            <tr><td>内在价值 / 时间价值</td><td class="mono">Intrinsic / Time Value</td><td>内在价值是立即行权能拿到的部分,时间价值是其余部分并随时间归零。</td></tr>
+            <tr><td>保证金</td><td class="mono">Margin</td><td>卖出开仓时冻结的资金,随行情与券商规则实时变化,<strong>不是固定数字</strong>。</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2><span class="hnum">9</span>下单前检查清单</h2>
+      <ul>
+        <li><strong>标的选对了吗?</strong>ETF、个股还是指数?不同标的交割方式不同。</li>
+        <li><strong>到期月份选对了吗?</strong>越临近到期,时间价值衰减越快。</li>
+        <li><strong>行权价选对了吗?</strong>实值、平值还是虚值?它决定你的盈亏平衡点。</li>
+        <li><strong>认购还是认沽?买还是卖?</strong>方向搞反是新手最惨痛的错误。</li>
+        <li><strong>算过乘数后的金额吗?</strong>报价不等于要付的钱,须乘以合约单位(美股通常 ×100)。</li>
+        <li><strong>价差可接受吗?</strong>价差占权利金比例是否过大?今天有成交吗?</li>
+        <li><strong>到期日有多近?</strong>是否需要在到期前平仓或准备行权?</li>
+        <li><strong>卖出的话,保证金够吗?</strong>是否留足缓冲,而非卡在最低要求?</li>
+        <li><strong>卖出的话,到期时钱或券到位吗?</strong>实物交割备券或备钱,现金交割备差额资金。</li>
+        <li><strong>总共要付多少成本?</strong>佣金、规费、价差、滑点加总占预期收益多少?</li>
+      </ul>
+
+      <h2><span class="hnum">10</span>小结</h2>
+      <div class="callout callout--key">
+        <span class="callout__t">本页四条要点</span>
+        <ol style="margin:0;padding-left:1.3em">
+          <li><strong>先分场内场外。</strong>个人从标准化、清算所担保的场内期权入手;场外定制化但有对手方风险。</li>
+          <li><strong>标的决定交割。</strong>ETF 与个股期权通常实物交割,指数期权通常现金交割。</li>
+          <li><strong>机制比数字重要。</strong>买方主动行权、卖方被随机指派、实值到一定程度自动行权——到期日必须提前准备。</li>
+          <li><strong>成本决定生死。</strong>价差与固定费用占权利金的比例,对短线策略伤害远大于股票;选流动性好的主力合约最划算。</li>
+        </ol>
+      </div>
+      <p class="mt">最后再强调:<strong>本章规则均为结构性描述,具体门槛金额、保证金比例、合约单位、最小变动价位与费率,请以交易所与券商的最新规则为准。</strong></p>
+
+      <hr class="rule">
+
+      <p>规则看懂了,接下来检验自己:<a href="quiz.html">第 09 章 · 自测 20 题</a>覆盖从基础概念到实务细节的全部内容,每题都有解析。</p>
+
+      <div class="chaptercta">
+        <div class="chaptercta__txt">
+          <span class="chaptercta__t">▶ 想动手试一遍?</span>
+          去<strong>模拟交易台</strong>,用一支美股标的走完整流程:
+          选到期 → 读期权链 → 下单 → 推动行情 → 平仓,每一步都有对应的知识点讲解,还能看到自己的盈亏是怎么来的。
+        </div>
+        <a class="btn" href="simulator.html">进入模拟交易 →</a>
+      </div>
+
+    </article>
+    <aside class="toc" data-toc><p class="toc__title">本页目录</p></aside>
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="wrap">
+    <div class="sitefoot__row">
+      <div><strong>期权百科</strong> · 从零讲明白期权</div>
+      <nav class="footnav">
+        <a href="basics.html">01 期权是什么</a>
+        <a href="payoff.html">03 到期盈亏</a>
+        <a href="pricing.html">04 定价原理</a>
+        <a href="strategies.html">06 组合策略</a>
+        <a href="quiz.html">09 自测</a>
+        <a href="glossary.html">10 术语表</a>
+        <a href="simulator.html">实战 模拟交易</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      风险提示:期权交易具有杠杆效应,可能导致本金全部损失,卖方风险可能超过初始保证金。
+      本站内容仅用于知识科普,不构成投资建议或要约。示例中的股票、价格、波动率均为虚构教学数据。
+      投资有风险,入市需谨慎。
+    </p>
+  </div>
+</footer>
+
+<script src="assets/bs.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>
